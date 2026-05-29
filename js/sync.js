@@ -31,6 +31,10 @@ function initGoogleAuth(forceInteractive = false) {
         client_id: clientId,
         scope: "https://www.googleapis.com/auth/drive.appdata",
         callback: (response) => {
+            // NOTE: When called via connectGoogleSync → getValidToken, this
+            // callback is temporarily replaced by getValidToken's own wrapper.
+            // This branch only fires for background token renewals (e.g. focus
+            // sync, manual sync) where getValidToken is NOT the initiator.
             if (response.error) {
                 console.error("GIS Authentication failed:", response);
                 updateSyncStatus("error", response.error);
@@ -39,14 +43,6 @@ function initGoogleAuth(forceInteractive = false) {
             }
             accessToken = response.access_token;
             tokenExpiry = Date.now() + (response.expires_in * 1000);
-            state.syncEnabled = true;
-            saveStateToLocalStorage();
-            updateSyncStatus("idle");
-            showNotification("Google Drive connected!");
-            renderSyncControls();
-
-            // Run initial pull/push — migration choice already applied before auth
-            syncFromDrive();
         }
     });
 }
@@ -513,6 +509,13 @@ async function connectGoogleSync() {
 
     getValidToken(true)
         .then(async () => {
+            // Token obtained — now safe to commit sync as enabled
+            state.syncEnabled = true;
+            saveStateToLocalStorage();
+            updateSyncStatus("idle");
+            showNotification("Google Drive connected!");
+            renderSyncControls();
+
             if (window._pendingSyncMigration === "fresh") {
                 // Fresh Start: pull remote data and overwrite local
                 await syncFromDrive();
