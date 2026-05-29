@@ -3,9 +3,17 @@
 A local-first personal finance PWA. Runs entirely in the browser with no backend.
 All data lives in `localStorage`. Designed as a mobile-first installable app.
 
+**Live app:** https://ravitejbondada.github.io/dabbux/
+**Repository:** https://github.com/ravitejbondada/dabbux
+
 ---
 
 ## Quick Start
+
+**Easiest — just open the live app:**
+👉 https://ravitejbondada.github.io/dabbux/
+
+**Or run locally:**
 
 > ⚠️ Must be served — opening `index.html` directly via `file://` will block the JS modules.
 

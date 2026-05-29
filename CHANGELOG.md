@@ -5,21 +5,24 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
-## [v2.1] 2026-05-29 — Project renamed to DabbuX
+## [v2.1] 2026-05-29 — Project renamed to DabbuX; deployed to GitHub Pages
 
-**What changed:** Renamed the project from "Trex" to "DabbuX — Personal Finance Made Personal". Replaced canvas-generated favicon with a static `assets/icon.png`.
+**What changed:** Renamed the project from "Trex" to "DabbuX — Personal Finance Made Personal". Replaced canvas-generated favicon with a static `assets/icon.png`. Deployed to GitHub Pages.
+
+**Live URL:** https://ravitejbondada.github.io/dabbux/
+**Repository:** https://github.com/ravitejbondada/dabbux
 
 **Files modified:**
 - `index.html` — updated `<title>`, `apple-mobile-web-app-title` meta, PWA manifest name/short_name/icon, header app name + tagline, lock screen title. Replaced dynamic `<link id="dynamicFavicon">` and `<link id="dynamicAppleIcon">` with static `<link rel="icon">` and `<link rel="apple-touch-icon">` pointing to `assets/icon.png`
-- `js/core.js` — `generateDynamicIcons()` should be removed or left as a no-op; favicon is now static
-- `README.md` — updated title, project folder name, added `assets/` to project structure
+- `js/core.js` — updated file header; removed `generateDynamicIcons()` function and its call from `window.onload`; favicon is now static
+- `README.md` — updated title, added live URL and repo link, project folder name, added `assets/` to project structure
 - `ARCHITECTURE.md` — updated title
 - `FUNCTIONS.md` — updated title; marked `generateDynamicIcons()` as deprecated
 - `CHANGELOG.md` — updated title and added this entry
 
 **Migration notes:**
 - The `assets/` directory must exist at the project root with `icon.png` inside it
-- `generateDynamicIcons()` in `core.js` can be safely removed; no other code depends on it
+- `generateDynamicIcons()` in `core.js` has been removed; no other code depends on it
 
 ---
 
