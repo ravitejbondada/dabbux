@@ -155,6 +155,3 @@ function changePin() {
     showPinChangeSuccess();
 }
 
-/* DATA RESTORATION PROCEDURES */
-const BACKUP_FORMAT_VERSION = 1;
-const BACKUP_APP_ID = "Trex";

@@ -71,22 +71,22 @@ function calculateCycleMetrics() {
 
 function formatDateReadable(dateObj, { weekday = false, year = false } = {}) {
     if (!dateObj || isNaN(dateObj.getTime())) return "";
-    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const DAYS   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    const d  = dateObj.getDate();
-    const m  = MONTHS[dateObj.getMonth()];
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const d = dateObj.getDate();
+    const m = MONTHS[dateObj.getMonth()];
     const yy = String(dateObj.getFullYear()).slice(-2);
     let out = `${d} ${m}`;
-    if (year)    out += `, ${yy}`;
+    if (year) out += `, ${yy}`;
     if (weekday) out = `${DAYS[dateObj.getDay()]}, ${out}`;
     return out;
 }
 
 function formatDateTime(dateObj) {
     if (!dateObj || isNaN(dateObj.getTime())) return "";
-    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const d  = dateObj.getDate();
-    const m  = MONTHS[dateObj.getMonth()];
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const d = dateObj.getDate();
+    const m = MONTHS[dateObj.getMonth()];
     const yy = String(dateObj.getFullYear()).slice(-2);
     const hh = dateObj.getHours();
     const mm = String(dateObj.getMinutes()).padStart(2, "0");
@@ -109,7 +109,7 @@ function updateAppDashboardView() {
 
     const rawPercent = state.monthlyBudget > 0 ? (metrics.totalSpent / state.monthlyBudget) * 100 : 0;
     let progressPercent = Math.min(rawPercent, 100);
-    
+
     const progressEl = document.getElementById("budgetProgressBar");
     progressEl.style.width = `${progressPercent}%`;
 
@@ -127,16 +127,16 @@ function updateAppDashboardView() {
     const emojiEl = document.getElementById("budgetHealthEmoji");
     if (emojiEl) {
         let emoji = "😄";
-        if (rawPercent >= 100)      emoji = "😱";
-        else if (rawPercent >= 85)  emoji = "😰";
-        else if (rawPercent >= 70)  emoji = "😟";
-        else if (rawPercent >= 50)  emoji = "😐";
-        else if (rawPercent >= 25)  emoji = "🙂";
+        if (rawPercent >= 100) emoji = "😱";
+        else if (rawPercent >= 85) emoji = "😰";
+        else if (rawPercent >= 70) emoji = "😟";
+        else if (rawPercent >= 50) emoji = "😐";
+        else if (rawPercent >= 25) emoji = "🙂";
         emojiEl.textContent = emoji;
     }
 
     // Over-budget alert
-    const overAlert  = document.getElementById("overBudgetAlert");
+    const overAlert = document.getElementById("overBudgetAlert");
     const overAmount = document.getElementById("overBudgetAmount");
     if (overAlert && overAmount) {
         if (metrics.totalSpent > state.monthlyBudget) {
@@ -178,42 +178,42 @@ function renderForecastCard(metrics) {
     card.classList.remove("hidden");
 
     const today = new Date();
-    today.setHours(0,0,0,0);
-    const daysElapsed = Math.max(1, Math.ceil((today - metrics.startDate) / (1000*3600*24)));
+    today.setHours(0, 0, 0, 0);
+    const daysElapsed = Math.max(1, Math.ceil((today - metrics.startDate) / (1000 * 3600 * 24)));
     const burnRate = metrics.totalSpent / daysElapsed;
     const projected = Math.round(burnRate * (daysElapsed + metrics.daysRemaining));
     const gap = state.monthlyBudget - projected; // positive = surplus, negative = overrun
     const spentPct = Math.min(100, Math.round((metrics.totalSpent / state.monthlyBudget) * 100));
 
     // Determine tone
-    const isOverrun   = projected > state.monthlyBudget;
-    const isWarning   = !isOverrun && projected > state.monthlyBudget * 0.88;
-    const isHealthy   = !isOverrun && !isWarning;
+    const isOverrun = projected > state.monthlyBudget;
+    const isWarning = !isOverrun && projected > state.monthlyBudget * 0.88;
+    const isHealthy = !isOverrun && !isWarning;
 
     const toneMap = {
         overrun: {
-            card:     "bg-rose-950/40 border-rose-500/30",
-            icon:     "bg-rose-600/15 border-rose-500/30 text-rose-400",
-            lucide:   "trending-up",
-            title:    "text-rose-300",
+            card: "bg-rose-950/40 border-rose-500/30",
+            icon: "bg-rose-600/15 border-rose-500/30 text-rose-400",
+            lucide: "trending-up",
+            title: "text-rose-300",
             titleTxt: "Budget Overrun Projected",
-            bar:      "bg-gradient-to-r from-rose-600 to-red-500",
+            bar: "bg-gradient-to-r from-rose-600 to-red-500",
         },
         warning: {
-            card:     "bg-amber-950/35 border-amber-500/25",
-            icon:     "bg-amber-600/15 border-amber-500/30 text-amber-400",
-            lucide:   "alert-triangle",
-            title:    "text-amber-300",
+            card: "bg-amber-950/35 border-amber-500/25",
+            icon: "bg-amber-600/15 border-amber-500/30 text-amber-400",
+            lucide: "alert-triangle",
+            title: "text-amber-300",
             titleTxt: "Approaching Budget Limit",
-            bar:      "bg-gradient-to-r from-amber-500 to-amber-300",
+            bar: "bg-gradient-to-r from-amber-500 to-amber-300",
         },
         healthy: {
-            card:     "bg-emerald-950/30 border-emerald-500/20",
-            icon:     "bg-emerald-600/15 border-emerald-500/25 text-emerald-400",
-            lucide:   "shield-check",
-            title:    "text-emerald-300",
+            card: "bg-emerald-950/30 border-emerald-500/20",
+            icon: "bg-emerald-600/15 border-emerald-500/25 text-emerald-400",
+            lucide: "shield-check",
+            title: "text-emerald-300",
             titleTxt: "On Track — Cycle Looking Good",
-            bar:      "bg-gradient-to-r from-emerald-500 to-teal-400",
+            bar: "bg-gradient-to-r from-emerald-500 to-teal-400",
         },
     };
     const tone = isOverrun ? toneMap.overrun : isWarning ? toneMap.warning : toneMap.healthy;
@@ -346,8 +346,8 @@ function renderSpendHeatmap() {
 /* ── FEATURE 6: CUSTOMIZABLE QUICK-LOG BUTTONS ──────────────────── */
 
 const DEFAULT_QUICK_LOGS = [
-    { id: "ql1", label: "Chai & Snacks",  amount: 100, categoryId: "c1", paymentId: "p2" },
-    { id: "ql2", label: "Local Rickshaw",  amount: 150, categoryId: "c2", paymentId: "p1" }
+    { id: "ql1", label: "Chai & Snacks", amount: 100, categoryId: "c1", paymentId: "p2" },
+    { id: "ql2", label: "Local Rickshaw", amount: 150, categoryId: "c2", paymentId: "p1" }
 ];
 
 function getQuickLogs() {
@@ -446,10 +446,10 @@ function saveAndCloseQuickLogEditor() {
         const existing = getQuickLogs().find(q => q.id === id) || {};
         updated.push({
             id,
-            label:      row.querySelector('[data-field="label"]').value.trim() || "Quick Log",
-            amount:     parseFloat(row.querySelector('[data-field="amount"]').value) || 0,
+            label: row.querySelector('[data-field="label"]').value.trim() || "Quick Log",
+            amount: parseFloat(row.querySelector('[data-field="amount"]').value) || 0,
             categoryId: row.querySelector('[data-field="categoryId"]').value,
-            paymentId:  row.querySelector('[data-field="paymentId"]').value,
+            paymentId: row.querySelector('[data-field="paymentId"]').value,
         });
     });
     state.quickLogs = updated;
@@ -537,7 +537,7 @@ function scheduleDailyReminder() {
 
     const timeStr = state.dailyReminderTime || "21:00";
     const [hh, mm] = timeStr.split(":").map(Number);
-    const now  = new Date();
+    const now = new Date();
     const fire = new Date();
     fire.setHours(hh, mm, 0, 0);
     if (fire <= now) fire.setDate(fire.getDate() + 1); // schedule for tomorrow if already passed
@@ -546,7 +546,7 @@ function scheduleDailyReminder() {
 
     const statusEl = document.getElementById("reminderStatusText");
     if (statusEl) {
-        statusEl.textContent = `Next reminder: ${formatDateReadable(fire, { weekday: true })} at ${fire.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}`;
+        statusEl.textContent = `Next reminder: ${formatDateReadable(fire, { weekday: true })} at ${fire.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
         statusEl.classList.remove("hidden");
     }
 
@@ -596,23 +596,23 @@ function requestNotificationPermission(callback) {
 }
 
 function syncNotificationSettings() {
-    const budgetEl   = document.getElementById("settingBudgetAlerts");
+    const budgetEl = document.getElementById("settingBudgetAlerts");
     const reminderEl = document.getElementById("settingDailyReminder");
-    const timeRow    = document.getElementById("dailyReminderTimeRow");
-    const timeInput  = document.getElementById("settingReminderTime");
-    const statusEl   = document.getElementById("reminderStatusText");
-    const permBtn    = document.getElementById("notifPermissionBtn");
+    const timeRow = document.getElementById("dailyReminderTimeRow");
+    const timeInput = document.getElementById("settingReminderTime");
+    const statusEl = document.getElementById("reminderStatusText");
+    const permBtn = document.getElementById("notifPermissionBtn");
 
-    if (budgetEl)   budgetEl.checked   = !!state.budgetAlertsEnabled;
-    if (reminderEl) reminderEl.checked  = !!state.dailyReminderEnabled;
+    if (budgetEl) budgetEl.checked = !!state.budgetAlertsEnabled;
+    if (reminderEl) reminderEl.checked = !!state.dailyReminderEnabled;
     if (timeInput && state.dailyReminderTime) timeInput.value = state.dailyReminderTime;
 
-    if (timeRow)   timeRow.style.display   = state.dailyReminderEnabled ? "flex"  : "none";
-    if (statusEl)  statusEl.style.display  = state.dailyReminderEnabled ? "block" : "none";
+    if (timeRow) timeRow.style.display = state.dailyReminderEnabled ? "flex" : "none";
+    if (statusEl) statusEl.style.display = state.dailyReminderEnabled ? "block" : "none";
 
     const needsPerm = (state.budgetAlertsEnabled || state.dailyReminderEnabled)
-                   && typeof Notification !== "undefined"
-                   && Notification.permission !== "granted";
+        && typeof Notification !== "undefined"
+        && Notification.permission !== "granted";
     if (permBtn) permBtn.style.display = needsPerm ? "flex" : "none";
 }
 
@@ -697,7 +697,7 @@ function renderDashboardCategoryHorizontalBars(startDate, endDate) {
 }
 
 function renderDashboardCategoryStackedBar(startDate, endDate) {
-    const bar    = document.getElementById("stackedCategoryBar");
+    const bar = document.getElementById("stackedCategoryBar");
     const legend = document.getElementById("stackedCategoryLegend");
     if (!bar) return;
     bar.innerHTML = "";
@@ -869,7 +869,7 @@ function renderWeeklyTrendChartLine() {
     for (let i = daysToTrack - 1; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        
+
         if (activeTrendPeriod === "weekly") {
             labels.push(formatDateReadable(d, { weekday: true }));
         } else {
@@ -914,16 +914,16 @@ function renderWeeklyTrendChartLine() {
             scales: {
                 y: {
                     grid: { color: 'rgba(255, 255, 255, 0.03)' },
-                    ticks: { 
-                        color: '#64748b', 
+                    ticks: {
+                        color: '#64748b',
                         font: { size: 8, weight: 'bold' },
-                        callback: function(value) { return state.currencySymbol + value; }
+                        callback: function (value) { return state.currencySymbol + value; }
                     }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { 
-                        color: '#64748b', 
+                    ticks: {
+                        color: '#64748b',
                         font: { size: 8, weight: 'bold' },
                         autoSkip: true,
                         maxTicksLimit: activeTrendPeriod === "weekly" ? 7 : 8
@@ -939,3 +939,46 @@ function renderRecentActivityList() {
     if (!container) return;
     container.innerHTML = "";
 
+    const sorted = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const limit = sorted.slice(0, 4);
+
+    if (limit.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4 bg-slate-900/20 rounded-xl border border-slate-850">Tap "+ Add Expense" to begin tracking.</p>`;
+        return;
+    }
+
+    limit.forEach(tx => {
+        const cat = state.categories.find(c => c.id === tx.categoryId) || { name: "Other", color: "#64748b" };
+        const pay = state.payments.find(p => p.id === tx.paymentId) || { name: "Cash" };
+        const dateText = formatDateReadable(new Date(tx.date), { year: '2-digit' });
+
+        const card = document.createElement("div");
+        card.className = "bg-slate-900/60 hover:bg-slate-850 border border-slate-900 rounded-2xl px-3 py-3 flex justify-between items-stretch gap-2 transition-all cursor-pointer active:scale-[0.99]";
+        card.onclick = () => loadExpenseToFormForEdit(tx.id);
+
+        card.innerHTML = `
+            <div class="flex items-stretch gap-2.5 min-w-0 flex-1">
+                <span class="w-1 self-stretch rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                <div class="min-w-0 flex-1 space-y-1 py-0.5">
+                    <span class="text-[11px] font-bold text-slate-100 block truncate">${tx.note || cat.name}</span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-md shrink-0" style="background-color:${cat.color}22; color:${cat.color}">
+                            <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background-color:${cat.color}"></span>
+                            <span class="truncate max-w-[68px]">${cat.name}</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400 shrink-0">
+                            <svg class="w-2.5 h-2.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="14" height="10" rx="2"/><path d="M1 7h14"/><path d="M5 1v3M11 1v3"/></svg>
+                            <span class="truncate max-w-[68px]">${pay.name}</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-950 text-slate-500 shrink-0">
+                            <svg class="w-2.5 h-2.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="2" width="14" height="13" rx="2"/><path d="M1 6h14"/><path d="M5 1v2M11 1v2"/></svg>
+                            ${dateText}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <span class="text-xs font-black text-indigo-300 shrink-0 ml-1 self-center">${state.currencySymbol}${tx.amount.toLocaleString()}</span>
+        `;
+        container.appendChild(card);
+    });
+}
