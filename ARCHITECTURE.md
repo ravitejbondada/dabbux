@@ -85,9 +85,9 @@ let state = {
   // ── Settings ──────────────────────────────────────────────
   currency: "INR",               // ISO currency code
   currencySymbol: "₹",           // Display symbol
-  monthlyBudget: 50000,          // Budget cap for the cycle
-  cycleType: "salary" | "monthly",
-  cycleDay: 5,                   // Day of month salary cycle starts (salary mode only)
+  monthlyBudget: 0,              // Budget cap for the cycle (0 / unset by default)
+  cycleType: "calendar" | "salary", // cycleType ("calendar" by default)
+  cycleDay: 1,                   // Day of month cycle starts (1 by default)
   creditCardsEnabled: false,     // Master toggle for CC billing day features
   pinEnabled: false,
   pinCode: "1234",
@@ -99,15 +99,17 @@ let state = {
 
   // ── Core data ─────────────────────────────────────────────
   categories: [
-    { id, name, color, defaultPaymentId }
+    { id, name, color, defaultPaymentId } // initialized with DEFAULT_CATEGORIES (null defaultPaymentIds)
   ],
   payments: [
     { id, name, type, limit, color, billingDay, archived? }
     // type: "Credit Card" | "UPI" | "Cash" | "Debit Card" | "Net Banking"
     // billingDay: 1–28, only relevant when type === "Credit Card"
     // archived: true if payment deleted but has existing transactions
+    // Initialized with DEFAULT_PAYMENTS (Cash, UPI, Card)
   ],
   transactions: [
+    // Starts empty [] (no mock/dummy transactions)
     { id, amount, categoryId, paymentId, date, note,
       isRecurring, recurringId, tripId, tripType, tripRef }
     // date: "YYYY-MM-DD" ISO string
@@ -115,27 +117,13 @@ let state = {
     // tripType: "pre" | "on" | null
   ],
   savingGoals: [
+    // Starts empty [] (no mock/dummy goals)
     { id, name, target, current,
       contributions?: [{ id, amount, note, date }] }
   ],
-  recurringExpenses: [
-    { id, name, amount, freq, startDate, categoryId, paymentId,
-      note, lastProcessed, createdAt, updatedAt }
-    // freq: "daily" | "weekly" | "monthly" | "yearly"
-  ],
-  emis: [
-    { id, name, principal, rateYear, tenure, startDate,
-      categoryId, paymentId, note, lastProcessed, createdAt }
-  ],
-  trips: [
-    { id, name, emoji, startDate, endDate, budget,
-      expenses: [
-        { id, description, amount, date, type, categoryId, paymentId, ledgerTxId }
-        // type: "pre" | "on"
-        // ledgerTxId: linked transaction id after syncTripToLedger()
-      ]
-    }
-  ]
+  recurringExpenses: [],
+  emis: [],
+  trips: []
 }
 ```
 

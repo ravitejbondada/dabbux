@@ -5,6 +5,21 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
+## [v2.2] 2026-05-29 — Clean onboarding and empty state handling for new users
+
+**What changed:** Removed all dummy/mock transactions, mock saving goals, mock quick logs, and specific credit card defaults to ensure a clean slate onboarding experience for new users. Added robust empty state views, budget placeholder guidance, and safety checks for default payment references.
+
+**Files modified:**
+- [core.js](file:///c:/VS_Code/dabbux/js/core.js) — cleared active/historical mock transactions, mock goals; reset budget defaults to 0 and cycle type/day to calendar-first defaults; simplified category and payment seeding.
+- [dashboard.js](file:///c:/VS_Code/dabbux/js/dashboard.js) — added prompt to set monthly budget if 0; hid forecast card if no budget/spend exists; cleared default quick logs array.
+- [reports.js](file:///c:/VS_Code/dabbux/js/reports.js) — added empty state verification and fallbacks for report charts and month-over-month view when transactions are empty.
+- [settings.js](file:///c:/VS_Code/dabbux/js/settings.js) — added budget field placeholder.
+- [transactions.js](file:///c:/VS_Code/dabbux/js/transactions.js) — added check to ensure referenced default payment method exists and is not archived before applying to category transaction forms.
+- [README.md](file:///c:/VS_Code/dabbux/README.md) — updated data persistence section to remove mock transactions reference.
+- [ARCHITECTURE.md](file:///c:/VS_Code/dabbux/ARCHITECTURE.md) — updated state object template with new default onboarding values.
+
+---
+
 ## [v2.1.1] 2026-05-29 — Fixed PWA manifest and optimized icon rendering
 
 **What changed:** Replaced embedded PWA manifest data URI with external `manifest.json` file. Removed stale base64-encoded images from HTML. Added CSS optimizations for crisp icon rendering and white background removal.

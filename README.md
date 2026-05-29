@@ -86,8 +86,7 @@ dabbux/
 ## Data Persistence
 
 State is serialized to `localStorage` on every write via `saveStateToLocalStorage()` in `core.js`.
-On boot, `window.onload` reads it back. If the key is missing, seed data (default categories,
-payments, sample transactions) is used.
+On boot, `window.onload` reads it back. If the key is missing, seed data (default categories and payments) is used.
 
 **localStorage key:** `androidWalletState_v4`
 
