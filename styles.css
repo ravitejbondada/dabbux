@@ -1,12 +1,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        /* High-quality icon rendering with white background removal */
+        /* High-quality icon rendering */
         img[src*="favicon"], img[src*="icon"] {
             image-rendering: crisp-edges;
             image-rendering: pixelated;
             -ms-interpolation-mode: nearest-neighbor;
-            /* Remove white background by making it transparent */
-            mix-blend-mode: multiply;
             background-color: transparent;
         }
         
