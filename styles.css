@@ -1,0 +1,313 @@
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            color-scheme: dark;
+        }
+        /* Hide scrollbars but keep functionality */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Glassmorphism utility classes */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        html[data-theme="light"] body {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        html[data-theme="light"] main {
+            background-color: #f8fafc;
+        }
+        html[data-theme="light"] main > div {
+            border-color: #cbd5e1 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05) !important;
+        }
+        html[data-theme="light"] #screenContainer,
+        html[data-theme="light"] #simulatedLockScreen,
+        html[data-theme="light"] nav.fixed {
+            background-color: #ffffff !important;
+        }
+        html[data-theme="light"] .bg-slate-950,
+        html[data-theme="light"] .bg-slate-900,
+        html[data-theme="light"] .bg-slate-900\/40,
+        html[data-theme="light"] .bg-slate-900\/50,
+        html[data-theme="light"] .bg-slate-900\/60,
+        html[data-theme="light"] .bg-slate-900\/80 {
+            background-color: #f1f5f9 !important;
+        }
+        html[data-theme="light"] .bg-slate-950\/80,
+        html[data-theme="light"] .bg-slate-950\/60,
+        html[data-theme="light"] .bg-slate-950\/45 {
+            background-color: #e2e8f0 !important;
+        }
+        html[data-theme="light"] .border-slate-800,
+        html[data-theme="light"] .border-slate-850,
+        html[data-theme="light"] .border-slate-900 {
+            border-color: #cbd5e1 !important;
+        }
+        html[data-theme="light"] .text-slate-100,
+        html[data-theme="light"] .text-slate-200,
+        html[data-theme="light"] .text-slate-300 {
+            color: #0f172a !important;
+        }
+        html[data-theme="light"] .text-slate-400,
+        html[data-theme="light"] .text-slate-500,
+        html[data-theme="light"] .text-slate-600 {
+            color: #64748b !important;
+        }
+        html[data-theme="light"] input,
+        html[data-theme="light"] select,
+        html[data-theme="light"] textarea {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html[data-theme="light"] button#appSettingsButton,
+        html[data-theme="light"] button#appLockButton {
+            background-color: rgba(148, 163, 184, 0.15) !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        html[data-theme="light"] button#appSettingsButton:hover,
+        html[data-theme="light"] button#appLockButton:hover {
+            background-color: rgba(148, 163, 184, 0.25) !important;
+            color: #0f172a !important;
+        }
+        html[data-theme="light"] button#appSettingsButton i,
+        html[data-theme="light"] button#appLockButton i {
+            color: inherit !important;
+        }
+        html[data-theme="light"] .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(15, 23, 42, 0.08);
+        }
+        /* Lucide icons: prevent flex stretch / distortion */
+        i[data-lucide], .icon-slot svg, .icon-slot .lucide {
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+            display: block;
+            stroke-width: 2;
+        }
+        .icon-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .icon-slot-sm { width: 1rem; height: 1rem; }
+        .icon-slot-md { width: 1.25rem; height: 1.25rem; }
+        .icon-slot-lg { width: 1.5rem; height: 1.5rem; }
+        /* In flex rows, select-wrap should shrink naturally */
+        .flex .select-wrap,
+        .flex-1 .select-wrap {
+            min-width: 0;
+        }
+        /* The report cycle selector parent flex needs the wrapper to be max 58% */
+        #reportCycleSelector {
+            max-width: 100%;
+        }
+        /* Constrain the auto-generated wrapper around reportCycleSelector */
+        #reportCycleSelector:not(.select-wrap > select) + .select-wrap,
+        .select-wrap:has(#reportCycleSelector) {
+            max-width: 58%;
+        }
+        /* ── Custom Select / Dropdown ──────────────────────────────────────────
+           Wraps every <select class="app-dropdown"> in a positioned container
+           that draws our own chevron arrow and applies the app theme colours.
+           The <select> itself has appearance:none so the OS/browser native
+           chrome (system picker styling, native arrow) is fully suppressed and
+           our CSS takes over completely in both dark and light themes.
+        ──────────────────────────────────────────────────────────────────── */
+        .select-wrap {
+            position: relative;
+            display: block;
+            width: 100%;
+            color-scheme: dark !important;
+        }
+        /* The custom chevron — drawn via a CSS background SVG on the wrapper */
+        .select-wrap::after {
+            content: "";
+            pointer-events: none;
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        html[data-theme="light"] .select-wrap::after {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        }
+        .app-dropdown {
+            /* suppress ALL native OS/browser select styling */
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            color-scheme: dark !important;
+
+            /* app dark-theme colours (default) */
+            background-color: #0f172a !important;
+            border: 1px solid rgba(148, 163, 184, 0.28) !important;
+            border-radius: 0.75rem;
+            /* extra right padding so text never overlaps our chevron */
+            padding: 0.75rem 2.25rem 0.75rem 0.875rem;
+            color: #f8fafc !important;
+            font-size: 0.8125rem;
+            font-family: inherit;
+            width: 100%;
+            cursor: pointer;
+            transition: box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        .app-dropdown:focus {
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.55);
+            outline: none;
+        }
+        .app-dropdown-sm {
+            padding: 0.6rem 2rem 0.6rem 0.75rem;
+            font-size: 0.7rem;
+        }
+        /* Force colours on the native <option> list (best-effort — browsers vary) */
+        .app-dropdown option {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            color-scheme: dark !important;
+        }
+        /* ── Light theme overrides ─────────────────────────────────────────── */
+        html[data-theme="light"] .app-dropdown {
+            background-color: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            color: #f8fafc !important;
+            color-scheme: dark !important;
+        }
+        html[data-theme="light"] .app-dropdown option {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            color-scheme: dark !important;
+        }
+        /* Emoji grid picker */
+        .emoji-pick-btn { background: transparent; border: none; cursor: pointer; text-align: center; transition: background 0.15s; }
+        .emoji-pick-btn:hover { background: rgba(99,102,241,0.18); }
+        .emoji-pick-btn.selected { background: rgba(99,102,241,0.35); border-radius: 0.375rem; }
+        #emojiPickerGrid::-webkit-scrollbar { width: 3px; }
+        #emojiPickerGrid::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.3); border-radius: 2px; }
+
+        /* Custom confirm/alert dialog */
+        #customConfirmOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(2, 6, 23, 0.75);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease;
+        }
+        #customConfirmOverlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        #customConfirmBox {
+            background: #0f172a;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 22rem;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            transform: scale(0.93) translateY(8px);
+            transition: transform 0.2s ease;
+        }
+        #customConfirmOverlay.active #customConfirmBox {
+            transform: scale(1) translateY(0);
+        }
+        html[data-theme="light"] #customConfirmBox {
+            background: #ffffff;
+            border-color: rgba(15, 23, 42, 0.12);
+        }
+        html[data-theme="light"] #customConfirmTitle {
+            color: #0f172a;
+        }
+        html[data-theme="light"] #customConfirmMessage {
+            color: #475569;
+        }
+        html[data-theme="light"] #customConfirmCancelBtn {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+        input[type="date"] {
+            position: relative;
+            padding-right: 3rem;
+            background-repeat: no-repeat;
+            background-position: right 0.85rem center;
+            background-size: 1.2rem 1.2rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm0-13H5V6h14v1z'/%3E%3C/svg%3E");
+            background-clip: padding-box;
+            cursor: pointer;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: textfield !important;
+        }
+        html[data-theme="light"] input[type="date"] {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230f172a' d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm0-13H5V6h14v1z'/%3E%3C/svg%3E");
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0 !important;
+            cursor: pointer;
+            -webkit-appearance: none !important;
+        }
+        .report-chart-wrap {
+            position: relative;
+            height: 11rem;
+            width: 100%;
+        }
+        .report-chart-wrap-tall {
+            height: 12.5rem;
+        }
+        .report-chart-wrap canvas {
+            border-radius: 0.75rem;
+        }
+        .report-gauge-wrap {
+            width: 4rem;
+            height: 4rem;
+            position: relative;
+        }
+        .report-hero-glow {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(16, 185, 129, 0.08) 50%, rgba(15, 23, 42, 0) 100%);
+        }
+        .trex-app-icon {
+            width: 2rem;
+            height: 2rem;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 6px rgba(99, 102, 241, 0.35));
+        }
+        html[data-theme="light"] #trexAppBar {
+            background-color: #ffffff !important;
+            border-color: #cbd5e1 !important;
+        }
+        html[data-theme="light"] #trexAppBar .text-white {
+            color: #0f172a !important;
+        }
