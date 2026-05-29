@@ -73,7 +73,11 @@ function applyCategoryDefaultPayment() {
     const catId = document.getElementById("expenseCategory").value;
     const cat = state.categories.find(c => c.id === catId);
     if (cat && cat.defaultPaymentId) {
-        document.getElementById("expensePayment").value = cat.defaultPaymentId;
+        // Guard: only apply if the payment still exists and is not archived
+        const targetPay = state.payments.find(p => p.id === cat.defaultPaymentId && !p.archived);
+        if (targetPay) {
+            document.getElementById("expensePayment").value = cat.defaultPaymentId;
+        }
     }
 }
 

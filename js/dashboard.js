@@ -102,55 +102,70 @@ function updateAppDashboardView() {
     const symbol = state.currencySymbol;
 
     document.getElementById("currentCycleLabel").textContent = `${formatDateReadable(metrics.startDate)} - ${formatDateReadable(metrics.endDate)}`;
-    document.getElementById("activeBudgetSubTitle").textContent = `${state.cycleType === 'salary' ? 'PAYDAY' : 'CALENDAR'} BUDGET RESET CYCLE`;
+    document.getElementById("activeBudgetSubTitle").textContent = `${state.cycleType === 'salary' ? 'PAYDAY CYCLE' : 'MONTHLY CYCLE'} · BUDGET RESET`;
 
-    document.getElementById("budgetTotalDisplay").textContent = `${symbol}${state.monthlyBudget.toLocaleString()}`;
-    document.getElementById("budgetRemainingDisplay").textContent = `${symbol}${metrics.remainingBudget.toLocaleString()}`;
+    const noBudget = !state.monthlyBudget || state.monthlyBudget === 0;
 
-    const rawPercent = state.monthlyBudget > 0 ? (metrics.totalSpent / state.monthlyBudget) * 100 : 0;
-    let progressPercent = Math.min(rawPercent, 100);
-
-    const progressEl = document.getElementById("budgetProgressBar");
-    progressEl.style.width = `${progressPercent}%`;
-
-    if (progressPercent > 100 || rawPercent > 100) {
-        progressEl.className = "bg-gradient-to-r from-rose-600 to-red-500 h-full rounded-full transition-all duration-700 shadow-sm shadow-rose-500/20";
-    } else if (progressPercent > 85) {
-        progressEl.className = "bg-gradient-to-r from-rose-500 to-red-500 h-full rounded-full transition-all duration-700 shadow-sm shadow-rose-500/20";
-    } else if (progressPercent > 60) {
-        progressEl.className = "bg-gradient-to-r from-amber-500 to-amber-300 h-full rounded-full transition-all duration-700 shadow-sm shadow-amber-500/20";
+    if (noBudget) {
+        document.getElementById("budgetTotalDisplay").textContent = `Set budget`;
+        document.getElementById("budgetRemainingDisplay").innerHTML =
+            `<span class="text-indigo-400 text-xs font-bold cursor-pointer underline underline-offset-2" onclick="switchScreen('settings')">Tap to set your budget →</span>`;
+        document.getElementById("budgetProgressBar").style.width = "0%";
+        document.getElementById("budgetProgressBar").className = "bg-slate-700 h-full rounded-full transition-all duration-700";
+        const emojiEl = document.getElementById("budgetHealthEmoji");
+        if (emojiEl) emojiEl.textContent = "🎯";
+        const overAlert = document.getElementById("overBudgetAlert");
+        if (overAlert) { overAlert.classList.add("hidden"); overAlert.classList.remove("flex"); }
+        document.getElementById("safeToSpendDisplay").textContent = `— / day`;
     } else {
-        progressEl.className = "bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full transition-all duration-700 shadow-sm shadow-emerald-500/20";
-    }
+        document.getElementById("budgetTotalDisplay").textContent = `${symbol}${state.monthlyBudget.toLocaleString()}`;
+        document.getElementById("budgetRemainingDisplay").textContent = `${symbol}${metrics.remainingBudget.toLocaleString()}`;
 
-    // Health emoji
-    const emojiEl = document.getElementById("budgetHealthEmoji");
-    if (emojiEl) {
-        let emoji = "😄";
-        if (rawPercent >= 100) emoji = "😱";
-        else if (rawPercent >= 85) emoji = "😰";
-        else if (rawPercent >= 70) emoji = "😟";
-        else if (rawPercent >= 50) emoji = "😐";
-        else if (rawPercent >= 25) emoji = "🙂";
-        emojiEl.textContent = emoji;
-    }
+        const rawPercent = (metrics.totalSpent / state.monthlyBudget) * 100;
+        let progressPercent = Math.min(rawPercent, 100);
 
-    // Over-budget alert
-    const overAlert = document.getElementById("overBudgetAlert");
-    const overAmount = document.getElementById("overBudgetAmount");
-    if (overAlert && overAmount) {
-        if (metrics.totalSpent > state.monthlyBudget) {
-            const excess = metrics.totalSpent - state.monthlyBudget;
-            overAmount.textContent = `${symbol}${Math.round(excess).toLocaleString()}`;
-            overAlert.classList.remove("hidden");
-            overAlert.classList.add("flex");
+        const progressEl = document.getElementById("budgetProgressBar");
+        progressEl.style.width = `${progressPercent}%`;
+
+        if (progressPercent > 100 || rawPercent > 100) {
+            progressEl.className = "bg-gradient-to-r from-rose-600 to-red-500 h-full rounded-full transition-all duration-700 shadow-sm shadow-rose-500/20";
+        } else if (progressPercent > 85) {
+            progressEl.className = "bg-gradient-to-r from-rose-500 to-red-500 h-full rounded-full transition-all duration-700 shadow-sm shadow-rose-500/20";
+        } else if (progressPercent > 60) {
+            progressEl.className = "bg-gradient-to-r from-amber-500 to-amber-300 h-full rounded-full transition-all duration-700 shadow-sm shadow-amber-500/20";
         } else {
-            overAlert.classList.add("hidden");
-            overAlert.classList.remove("flex");
+            progressEl.className = "bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full transition-all duration-700 shadow-sm shadow-emerald-500/20";
         }
-    }
 
-    document.getElementById("safeToSpendDisplay").textContent = `${symbol}${Math.round(metrics.safeToSpend).toLocaleString()} / day`;
+        // Health emoji
+        const emojiEl = document.getElementById("budgetHealthEmoji");
+        if (emojiEl) {
+            let emoji = "😄";
+            if (rawPercent >= 100) emoji = "😱";
+            else if (rawPercent >= 85) emoji = "😰";
+            else if (rawPercent >= 70) emoji = "😟";
+            else if (rawPercent >= 50) emoji = "😐";
+            else if (rawPercent >= 25) emoji = "🙂";
+            emojiEl.textContent = emoji;
+        }
+
+        // Over-budget alert
+        const overAlert = document.getElementById("overBudgetAlert");
+        const overAmount = document.getElementById("overBudgetAmount");
+        if (overAlert && overAmount) {
+            if (metrics.totalSpent > state.monthlyBudget) {
+                const excess = metrics.totalSpent - state.monthlyBudget;
+                overAmount.textContent = `${symbol}${Math.round(excess).toLocaleString()}`;
+                overAlert.classList.remove("hidden");
+                overAlert.classList.add("flex");
+            } else {
+                overAlert.classList.add("hidden");
+                overAlert.classList.remove("flex");
+            }
+        }
+
+        document.getElementById("safeToSpendDisplay").textContent = `${symbol}${Math.round(metrics.safeToSpend).toLocaleString()} / day`;
+    }
 
     renderForecastCard(metrics);
     checkBudgetAlerts(metrics);
@@ -174,7 +189,7 @@ function renderForecastCard(metrics) {
     const card = document.getElementById("forecastCard");
     const sym = state.currencySymbol;
 
-    if (metrics.totalSpent <= 0) { card.classList.add("hidden"); return; }
+    if (metrics.totalSpent <= 0 || !state.monthlyBudget || state.monthlyBudget === 0) { card.classList.add("hidden"); return; }
     card.classList.remove("hidden");
 
     const today = new Date();
@@ -345,10 +360,7 @@ function renderSpendHeatmap() {
 
 /* ── FEATURE 6: CUSTOMIZABLE QUICK-LOG BUTTONS ──────────────────── */
 
-const DEFAULT_QUICK_LOGS = [
-    { id: "ql1", label: "Chai & Snacks", amount: 100, categoryId: "c1", paymentId: "p2" },
-    { id: "ql2", label: "Local Rickshaw", amount: 150, categoryId: "c2", paymentId: "p1" }
-];
+const DEFAULT_QUICK_LOGS = [];
 
 function getQuickLogs() {
     if (!state.quickLogs) state.quickLogs = DEFAULT_QUICK_LOGS.map(q => ({ ...q }));

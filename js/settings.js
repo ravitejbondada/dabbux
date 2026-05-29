@@ -22,7 +22,9 @@ function buildCurrencySelectorOptions() {
 
 function syncSettingsFormFields() {
     document.getElementById("settingCurrency").value = `${state.currency}|${state.currencySymbol}`;
-    document.getElementById("settingMonthlyBudget").value = state.monthlyBudget;
+    const budgetInput = document.getElementById("settingMonthlyBudget");
+    budgetInput.value = state.monthlyBudget;
+    budgetInput.placeholder = "e.g. 50,000";
     document.getElementById("settingCycleType").value = state.cycleType;
     document.getElementById("settingCycleDay").value = state.cycleDay;
     const creditCardsToggle = document.getElementById("settingCreditCardsEnabled");

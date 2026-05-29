@@ -222,6 +222,19 @@ function renderPremiumReportCharts(catLabels, catValues, catColors, payLabels, p
     reportsPaymentChartInstance = destroyReportChart(reportsPaymentChartInstance);
     reportsBarChartInstance = destroyReportChart(reportsBarChartInstance);
 
+    const chartsEmptyEl = document.getElementById("reportChartsEmptyState");
+    const chartsBodyEl = document.getElementById("reportChartsBody");
+    const hasData = catLabels.length > 0 || payLabels.length > 0;
+
+    if (!hasData) {
+        if (chartsEmptyEl) chartsEmptyEl.classList.remove("hidden");
+        if (chartsBodyEl) chartsBodyEl.classList.add("hidden");
+        renderReportTopCategories([], [], []);
+        return;
+    }
+    if (chartsEmptyEl) chartsEmptyEl.classList.add("hidden");
+    if (chartsBodyEl) chartsBodyEl.classList.remove("hidden");
+
     if (catLabels.length > 0) {
         reportsCategoryChartInstance = renderPremiumDoughnut("reportCategoryChart", catLabels, catValues, catColors);
     }
@@ -560,6 +573,18 @@ function renderMomReport() {
     const txA = getTxForCycle(keyA);
     const txB = getTxForCycle(keyB);
     const txC = keyC ? getTxForCycle(keyC) : null;
+
+    // Empty state: no data in any selected cycle
+    const momContentEl = document.getElementById("momContent");
+    const momEmptyEl = document.getElementById("momEmptyState");
+    const hasData = txA.length > 0 || txB.length > 0 || (txC && txC.length > 0);
+    if (!hasData) {
+        if (momEmptyEl) momEmptyEl.classList.remove("hidden");
+        if (momContentEl) momContentEl.classList.add("hidden");
+        return;
+    }
+    if (momEmptyEl) momEmptyEl.classList.add("hidden");
+    if (momContentEl) momContentEl.classList.remove("hidden");
 
     const totalA = txA.reduce((s, t) => s + parseFloat(t.amount || 0), 0);
     const totalB = txB.reduce((s, t) => s + parseFloat(t.amount || 0), 0);

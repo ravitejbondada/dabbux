@@ -18,60 +18,35 @@ const CURRENCIES = [
 ];
 
 const DEFAULT_CATEGORIES = [
-    { id: "c1", name: "Food & Dining", color: "#f59e0b", defaultPaymentId: "p2" },
-    { id: "c2", name: "Transport & Cabs", color: "#3b82f6", defaultPaymentId: "p3" },
-    { id: "c3", name: "Rent & Stay", color: "#ec4899", defaultPaymentId: "p1" },
-    { id: "c4", name: "Utilities & Subs", color: "#ef4444", defaultPaymentId: "p1" },
-    { id: "c5", name: "Entertainment", color: "#8b5cf6", defaultPaymentId: "p2" },
-    { id: "c6", name: "Shopping", color: "#10b981", defaultPaymentId: "p1" }
+    { id: "c1", name: "Food & Dining",     color: "#f59e0b", defaultPaymentId: null },
+    { id: "c2", name: "Transport",         color: "#3b82f6", defaultPaymentId: null },
+    { id: "c3", name: "Rent & Stay",       color: "#ec4899", defaultPaymentId: null },
+    { id: "c4", name: "Utilities & Subs",  color: "#ef4444", defaultPaymentId: null },
+    { id: "c5", name: "Entertainment",     color: "#8b5cf6", defaultPaymentId: null },
+    { id: "c6", name: "Shopping",          color: "#10b981", defaultPaymentId: null }
 ];
 
 const DEFAULT_PAYMENTS = [
-    { id: "p1", name: "HDFC Premium Card", type: "Credit Card", limit: 150000, color: "#4f46e5", billingDay: null },
-    { id: "p2", name: "Google Pay UPI", type: "UPI", limit: 0, color: "#06b6d4" },
-    { id: "p3", name: "Wallet Cash", type: "Cash", limit: 0, color: "#eab308" }
+    { id: "p1", name: "Cash",  type: "Cash",        limit: 0, color: "#eab308", billingDay: null },
+    { id: "p2", name: "UPI",   type: "UPI",         limit: 0, color: "#06b6d4", billingDay: null },
+    { id: "p3", name: "Card",  type: "Debit Card",  limit: 0, color: "#4f46e5", billingDay: null }
 ];
 
-const ACTIVE_TRANSACTIONS = [
-    { id: "t1", amount: 1500, categoryId: "c1", paymentId: "p2", date: "2026-05-24", note: "Weekly vegetable groceries" },
-    { id: "t2", amount: 450, categoryId: "c2", paymentId: "p3", date: "2026-05-24", note: "Auto ride office return" },
-    { id: "t3", amount: 15000, categoryId: "c3", paymentId: "p1", date: "2026-05-05", note: "Monthly flat maintenance" },
-    { id: "t4", amount: 1200, categoryId: "c4", paymentId: "p1", date: "2026-05-23", note: "Gigabit Broadband" },
-    { id: "t5", amount: 3500, categoryId: "c5", paymentId: "p1", date: "2026-05-22", note: "Concert festival ticket" },
-    { id: "t6", amount: 1800, categoryId: "c6", paymentId: "p2", date: "2026-05-21", note: "Casual denim shirts" },
-    { id: "t7", amount: 800, categoryId: "c1", paymentId: "p2", date: "2026-05-20", note: "Family cafe lunch" },
-    { id: "t8", amount: 350, categoryId: "c2", paymentId: "p3", date: "2026-05-19", note: "Metro smartcard recharge" }
-];
-
-const HISTORICAL_TRANSACTIONS = [
-    { id: "th1", amount: 15000, categoryId: "c3", paymentId: "p1", date: "2026-04-05", note: "Rent House payout" },
-    { id: "th2", amount: 6200, categoryId: "c1", paymentId: "p2", date: "2026-04-12", note: "Weekend gourmet diner" },
-    { id: "th3", amount: 4800, categoryId: "c6", paymentId: "p1", date: "2026-04-18", note: "Apparel designer shoes" },
-    { id: "th4", amount: 1200, categoryId: "c4", paymentId: "p1", date: "2026-04-20", note: "Broadband optic line" },
-    { id: "th5", amount: 15000, categoryId: "c3", paymentId: "p1", date: "2026-03-05", note: "Base rent payout" },
-    { id: "th6", amount: 8500, categoryId: "c1", paymentId: "p2", date: "2026-03-10", note: "Organic food bulk stores" },
-    { id: "th7", amount: 9000, categoryId: "c5", paymentId: "p1", date: "2026-03-15", note: "Spa resort getaway weekend" },
-    { id: "th8", amount: 1100, categoryId: "c4", paymentId: "p3", date: "2026-03-18", note: "Purified water delivery" }
-];
-
-const DEFAULT_SAVING_GOALS = [
-    { id: "g1", name: "Tokyo Vacation Target", target: 120000, current: 65000 },
-    { id: "g2", name: "MacBook Pro M4 Pro", target: 200000, current: 155000 }
-];
+const DEFAULT_SAVING_GOALS = [];
 
 // System configuration defaults (PIN lock disabled on load for clean onboarding)
 let state = {
     currency: "INR",
     currencySymbol: "\u20B9",
-    monthlyBudget: 50000,
-    cycleType: "salary",
-    cycleDay: 5,
+    monthlyBudget: 0,
+    cycleType: "calendar",
+    cycleDay: 1,
     creditCardsEnabled: false,
     pinEnabled: false,
     pinCode: "1234",
     categories: [...DEFAULT_CATEGORIES],
     payments: [...DEFAULT_PAYMENTS],
-    transactions: [...ACTIVE_TRANSACTIONS, ...HISTORICAL_TRANSACTIONS],
+    transactions: [],
     savingGoals: [...DEFAULT_SAVING_GOALS],
     recurringExpenses: [],
     emis: [],
