@@ -5,6 +5,23 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
+## [v2.5] 2026-05-30 — Sync UI boot fix: status panel, header icon & GIS timing
+
+**What changed:** Fixed three compounding bugs that left the Cloud Sync panel permanently stuck on "Checking..." and the header icon invisible. Root cause was `updateSyncStatus` function declaration missing from `sync.js` (body existed but signature was deleted), `switchScreen('settings')` never refreshing sync UI on navigation, and the GIS SDK loading async before `initGoogleAuth` was called. Added inline boot patch to `index.html` as a cache-proof safety net.
+
+**Files modified:**
+- `js/sync.js` — restored missing `function updateSyncStatus(status, detail = "")` declaration (function body was orphaned as top-level statements, causing ReferenceError on every call); restored `updateHeaderSyncIcon` as a separate correctly-ordered function; button now always visible (gray `cloud-off` when sync disabled, never `hidden`); `syncFromDrive()` guards early if GIS SDK not ready (sets `offline` cleanly instead of hanging); `initGoogleAuth()` no longer calls `updateSyncStatus` on SDK-not-ready (prevented circular crash at boot); added `window._dabbuxGISReady` callback so `initGoogleAuth` fires the moment the GIS SDK finishes loading.
+- `js/core.js` — `switchScreen('settings')` now calls `renderSyncControls()` + `updateSyncStatus()` every time Settings opens (previously only `renderSettingsLists()` was called, leaving sync panel stale); `window.onload` boot order corrected: `initLucideIcons()` before `updateHeaderSyncIcon()`; explicit `updateSyncStatus("offline")` called at boot when sync is disabled.
+- `index.html` — removed `hidden` class from `#headerSyncBtn`; default icon changed from `cloud` to `cloud-off`; GIS script tag gains `onload` callback to trigger `_dabbuxGISReady`; Client ID field placeholder now shows actual default Client ID with explanatory note; added inline `SYNC UI BOOT PATCH` script at end of `<body>` that calls `refreshSyncUI()` on `window.load` and wraps `switchScreen` — works as a cache-proof fallback even if `sync.js`/`core.js` are served stale from CDN/browser cache.
+
+**Root causes fixed:**
+1. `updateSyncStatus` function declaration deleted from `sync.js` → ReferenceError on every call → status frozen at hardcoded "Checking..."
+2. `switchScreen('settings')` never called `renderSyncControls()` → `syncControlsContainer` always empty → no Connect button visible
+3. GIS SDK loads `async defer` but `initGoogleAuth` only called on user action → returning users with `syncEnabled=true` hung on boot
+4. `#headerSyncBtn` had `hidden` class in HTML and JS kept hiding it → icon never appeared
+
+---
+
 ## [v2.4] 2026-05-30 — Silent sync engine, header status icon & account metadata
 
 **What changed:** Replaced intrusive conflict modals with a fully silent background sync engine. Added a live cloud status icon to the app header. Added connected account and Drive file metadata display in the Settings panel. Hardcoded fallback OAuth Client ID. Extracted user email via userinfo endpoint post-OAuth.

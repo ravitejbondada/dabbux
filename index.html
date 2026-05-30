@@ -2238,6 +2238,46 @@
     <script src="js/recurring.js"></script>
     <script src="js/goals-trips.js"></script>
     <script src="js/backup.js"></script>
+
+    <script>
+    // ── SYNC UI BOOT PATCH ──────────────────────────────────────────────────
+    // Ensures the sync panel renders correctly on every page load and every
+    // time Settings is opened, regardless of browser/CDN caching of JS files.
+    (function patchSyncBoot() {
+        function refreshSyncUI() {
+            // 1. Render the correct button (Connect / Sync Now+Disconnect)
+            if (typeof renderSyncControls === "function") renderSyncControls();
+
+            // 2. Write the correct status text (replaces hardcoded "Checking...")
+            if (typeof updateSyncStatus === "function") {
+                const s = (typeof state !== "undefined" && state.syncEnabled)
+                    ? (state.syncStatus || "idle")
+                    : "offline";
+                updateSyncStatus(s);
+            }
+
+            // 3. Update header icon
+            if (typeof updateHeaderSyncIcon === "function") updateHeaderSyncIcon();
+        }
+
+        // Run once after all scripts have loaded
+        window.addEventListener("load", function () {
+            setTimeout(refreshSyncUI, 0);
+        });
+
+        // Run every time the user navigates to Settings
+        // Patch switchScreen to always call refreshSyncUI when settings opens
+        window.addEventListener("load", function () {
+            const _orig = window.switchScreen;
+            if (typeof _orig === "function") {
+                window.switchScreen = function (viewName) {
+                    _orig(viewName);
+                    if (viewName === "settings") refreshSyncUI();
+                };
+            }
+        });
+    })();
+    </script>
 </body>
 
 </html>
