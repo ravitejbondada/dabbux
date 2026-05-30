@@ -171,11 +171,11 @@ window.onload = function () {
     if (typeof checkAndShowOnboardingModal === "function") {
         checkAndShowOnboardingModal();
     }
+    wrapAllSelects();
+    initLucideIcons();
     if (typeof updateHeaderSyncIcon === "function") {
         updateHeaderSyncIcon();
     }
-    wrapAllSelects();
-    initLucideIcons();
 };
 
 /* ── SELECT WRAPPER — forces app theme on all dropdowns ────────────────

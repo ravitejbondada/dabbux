@@ -632,22 +632,31 @@ function updateSyncStatus(status, detail = "") {
 }
 
 /**
- * Updates the header cloud icon button (#headerSyncBtn) to reflect current sync state:
- * - sync disabled: button hidden
- * - offline / error: slate cloud-off, routes to settings
- * - idle (connected): indigo cloud-check, triggers triggerManualSync()
+ * Updates the header cloud icon button (#headerSyncBtn) to reflect current sync state.
+ * Button is ALWAYS visible (never hidden):
+ * - sync disabled: gray cloud-off → open settings
+ * - offline / error: slate cloud-off → open settings
+ * - idle (connected): indigo cloud-check → triggerManualSync()
  * - syncing: spinning refresh-cw icon
  */
 function updateHeaderSyncIcon() {
     const btn = document.getElementById("headerSyncBtn");
     if (!btn) return;
 
+    btn.classList.remove("hidden");
+
+    // When sync is disabled: gray cloud-off → navigate to settings to enable (task 1a/1e)
     if (!state.syncEnabled) {
-        btn.classList.add("hidden");
+        btn.className = "w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 flex items-center justify-center shadow-lg transition-all text-slate-500 hover:text-slate-400";
+        btn.title = "Cloud sync off — tap to set up";
+        btn.onclick = () => switchScreen("settings");
+        if (iconEl) {
+            iconEl.setAttribute("data-lucide", "cloud-off");
+            iconEl.className = "w-4 h-4";
+        }
+        if (typeof initLucideIcons === "function") initLucideIcons(btn);
         return;
     }
-
-    btn.classList.remove("hidden");
 
     const status = state.syncStatus || "idle";
     const iconEl = document.getElementById("headerSyncIcon");
