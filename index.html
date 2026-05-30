@@ -81,16 +81,7 @@
         </div>
 
         <div class="w-full space-y-4 max-w-sm">
-            <!-- Quick Add button -->
-            <div class="flex justify-center">
-                <button onclick="openLockedExpenseSheet()"
-                    class="w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center"
-                    title="Add expense">
-                    <i data-lucide="plus" class="w-7 h-7 text-white"></i>
-                </button>
-            </div>
-
-            <div class="flex justify-center gap-4">
+            <div class="relative flex justify-center items-center gap-4">
                 <span id="pinDot1"
                     class="w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
                 <span id="pinDot2"
@@ -99,6 +90,10 @@
                     class="w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
                 <span id="pinDot4"
                     class="w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
+                <button onclick="clearPin()"
+                    class="absolute right-0 text-slate-500 hover:text-slate-300 active:scale-95 transition-all">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
             </div>
 
             <!-- Lock Keyboard Keypad -->
@@ -129,9 +124,10 @@
                 </button>
                 <button onclick="pressPin('0')"
                     class="h-12 bg-slate-900 hover:bg-slate-850 rounded-2xl text-white active:scale-95 transition-all">0</button>
-                <button onclick="clearPin()"
-                    class="h-12 bg-slate-900 hover:bg-slate-850 rounded-2xl text-slate-400 flex items-center justify-center active:scale-95 transition-all">
-                    <i data-lucide="delete" class="w-5 h-5"></i>
+                <button onclick="openLockedExpenseSheet()"
+                    class="h-12 bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-900/40 text-indigo-400 rounded-2xl flex items-center justify-center active:scale-95 transition-all"
+                    title="Add expense">
+                    <i data-lucide="circle-plus" class="w-6 h-6"></i>
                 </button>
             </div>
         </div>
