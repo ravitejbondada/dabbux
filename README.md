@@ -3,15 +3,15 @@
 A local-first personal finance PWA. Runs entirely in the browser with no backend.
 All data lives in `localStorage`. Designed as a mobile-first installable app.
 
-**Live app:** https://ravitejbondada.github.io/dabbux/
-**Repository:** https://github.com/ravitejbondada/dabbux
+**Live app:** https://ravitejbondada.github.io/TReX/
+**Repository:** https://github.com/ravitejbondada/TReX
 
 ---
 
 ## Quick Start
 
 **Easiest — just open the live app:**
-👉 https://ravitejbondada.github.io/dabbux/
+👉 https://ravitejbondada.github.io/TReX/
 
 **Or run locally:**
 
@@ -110,13 +110,13 @@ Cloud sync is **live** via `js/sync.js`. It uses the Google Identity Services (G
 - **Budget discrepancy:** a scoped two-button modal asks which budget to keep; all other data syncs silently.
 - A **Migration modal** (Merge / Fresh Start) is shown only when an existing Drive file is found and local data is present.
 - An **Onboarding modal** warns new users about local-only data loss risks. Uses `sessionStorage` so it re-triggers in incognito.
-- **Reset Sync** deletes the `dabbux_sync_v4.json` file from `appDataFolder` and disconnects the device cleanly.
+- **Reset Sync** deletes the `trex_sync_v4.json` file from `appDataFolder` and disconnects the device cleanly.
 - **Header sync icon** (`#headerSyncBtn`) — always visible in the app header; shows live status (`cloud-check` / spinning `refresh-cw` / `cloud-off`) and provides one-tap access to manual sync or settings.
 - **Account metadata badge** in the Settings panel shows the connected Google email and the Drive file ID once authenticated.
 
 **Default OAuth Client ID:** `219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.apps.googleusercontent.com` (hardcoded fallback; overridable via Advanced Sync Settings).
 
-**Drive file:** `dabbux_sync_v4.json` inside the `appDataFolder` (private to this app, invisible to the user's Drive).
+**Drive file:** `trex_sync_v4.json` inside the `appDataFolder` (private to this app, invisible to the user's Drive).
 
 See `ARCHITECTURE.md` for the full sync design and `FUNCTIONS.md` for the `sync.js` function index.
 

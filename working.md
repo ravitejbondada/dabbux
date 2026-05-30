@@ -75,7 +75,7 @@ Phase 8 — Documentation Reconciliation — Complete ✅
 | 4 | `window.onload` boot order fixed: `initLucideIcons` before `updateHeaderSyncIcon` | ✅ | `core.js` |
 | 5 | Explicit `updateSyncStatus("offline")` at boot when sync disabled | ✅ | `core.js` |
 | 6 | `#headerSyncBtn` — removed `hidden` class; always visible; default `cloud-off` icon | ✅ | `index.html` |
-| 7 | GIS script `onload` → `_dabbuxGISReady()` → `initGoogleAuth()` fires when SDK ready | ✅ | `index.html`, `sync.js` |
+| 7 | GIS script `onload` → `_trexGISReady()` → `initGoogleAuth()` fires when SDK ready | ✅ | `index.html`, `sync.js` |
 | 8 | `syncFromDrive()` guards early if GIS not ready; sets `offline` cleanly | ✅ | `sync.js` |
 | 9 | `initGoogleAuth()` no longer calls `updateSyncStatus` (prevented boot crash) | ✅ | `sync.js` |
 | 10 | Client ID placeholder shows actual default ID with explanatory note | ✅ | `index.html` |

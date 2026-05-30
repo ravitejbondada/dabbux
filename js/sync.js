@@ -20,7 +20,7 @@ const SYNC_DEFAULT_CLIENT_ID = "219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.ap
 
 // Initialize GIS as soon as the SDK script finishes loading.
 // The GIS script tag uses async defer, so this callback fires once it's ready.
-window._dabbuxGISReady = function () {
+window._trexGISReady = function () {
     initGoogleAuth(false);
     // If sync was already enabled (returning user), kick off a sync now that auth is ready
     if (state && state.syncEnabled) {
@@ -135,7 +135,7 @@ async function fetchWithRetry(url, options = {}, retries = [2000, 5000, 15000]) 
  * Finds the file ID of TReX sync file in appDataFolder
  */
 async function findSyncFileId(token) {
-    const query = encodeURIComponent("name = 'dabbux_sync_v4.json' and 'appDataFolder' in parents and trashed = false");
+    const query = encodeURIComponent("name = 'trex_sync_v4.json' and 'appDataFolder' in parents and trashed = false");
     const url = `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${query}&fields=files(id,name)`;
     const response = await fetchWithRetry(url, {
         headers: { "Authorization": `Bearer ${token}` }
@@ -163,7 +163,7 @@ async function createSyncFile(token, content) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            name: "dabbux_sync_v4.json",
+            name: "trex_sync_v4.json",
             parents: ["appDataFolder"]
         })
     });
@@ -1066,7 +1066,7 @@ function showOnboardingModal() {
         }
         const el = document.getElementById("syncOnboardingModal");
         if (el) el.remove();
-        try { sessionStorage.setItem("dabbux_onboarding_seen", "1"); } catch (e) {}
+        try { sessionStorage.setItem("trex_onboarding_seen", "1"); } catch (e) {}
     };
 
     document.body.appendChild(div);
@@ -1082,7 +1082,7 @@ function checkAndShowOnboardingModal() {
     if (state.syncEnabled) return;
     if (state.hideCloudPrompt === true) return;
     try {
-        if (sessionStorage.getItem("dabbux_onboarding_seen")) return;
+        if (sessionStorage.getItem("trex_onboarding_seen")) return;
     } catch (e) { /* sessionStorage blocked — show anyway */ }
     // Small delay so the dashboard renders first
     setTimeout(showOnboardingModal, 1200);

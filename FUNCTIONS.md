@@ -338,8 +338,8 @@ To find where to add/edit something, scan the relevant section header then go to
 | Function | Description |
 |---|---|
 | `fetchWithRetry(url, options, retries?)` | `fetch` wrapper with exponential backoff `[2s, 5s, 15s]`; auto-refreshes token on 401 |
-| `findSyncFileId(token)` | Queries Drive `appDataFolder` for `dabbux_sync_v4.json`; returns the file ID or `null` |
-| `createSyncFile(token, content)` | Creates `dabbux_sync_v4.json` in `appDataFolder` with the given JSON string |
+| `findSyncFileId(token)` | Queries Drive `appDataFolder` for `trex_sync_v4.json`; returns the file ID or `null` |
+| `createSyncFile(token, content)` | Creates `trex_sync_v4.json` in `appDataFolder` with the given JSON string |
 | `updateSyncFile(token, fileId, content)` | Patches the content of an existing Drive sync file |
 | `downloadSyncFile(token, fileId)` | Downloads and JSON-parses the remote sync file |
 
@@ -395,4 +395,4 @@ To find where to add/edit something, scan the relevant section header then go to
 | `showOnboardingModal()` | Injects the bottom-sheet onboarding modal warning about local-only data risk |
 | `checkAndShowOnboardingModal()` | Gate function called from `window.onload`; fires `showOnboardingModal()` after 1.2 s if sync is off and `sessionStorage` key is absent |
 | `showMigrationModal()` | Promise-based modal shown in `connectGoogleSync()` only when a Drive file already exists and local data is present; resolves to `"merge"`, `"fresh"`, or `null` |
-| `resetSyncData()` | Deletes `dabbux_sync_v4.json` from Drive and resets all local sync state; local app data is preserved |
+| `resetSyncData()` | Deletes `trex_sync_v4.json` from Drive and resets all local sync state; local app data is preserved |

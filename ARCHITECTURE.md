@@ -133,7 +133,7 @@ let state = {
   syncStatus: "idle",          // "idle" | "syncing" | "error" | "offline"
   googleClientId: "",          // custom OAuth Client ID (falls back to DEFAULT_CLIENT_ID)
   syncUserEmail: "",           // email of the authenticated Google account (fetched post-OAuth)
-  syncDriveFileId: ""          // cached Drive file ID of dabbux_sync_v4.json
+  syncDriveFileId: ""          // cached Drive file ID of trex_sync_v4.json
 }
 ```
 
@@ -265,7 +265,7 @@ Architecture: **local-first, Google Drive `appDataFolder` as secondary store**.
 No backend — all auth happens via Google Identity Services (GIS) in-browser.
 
 ### Drive File
-`dabbux_sync_v4.json` stored in `appDataFolder` (private, not visible in user's Drive UI).
+`trex_sync_v4.json` stored in `appDataFolder` (private, not visible in user's Drive UI).
 
 ### Hardcoded Default Client ID
 `DEFAULT_CLIENT_ID` is owned by `core.js`. `sync.js` uses its own local
@@ -361,7 +361,7 @@ Populated by `renderSyncMetaBadge()`, called from `renderSyncControls()` and `co
 
 ### Onboarding Modal
 - `checkAndShowOnboardingModal()` called from `window.onload` after sync attempt
-- Shown if `!state.syncEnabled` and `sessionStorage` key `dabbux_onboarding_seen` is absent
+- Shown if `!state.syncEnabled` and `sessionStorage` key `trex_onboarding_seen` is absent
 - `sessionStorage` ensures it re-triggers every incognito session
 - "Enable Sync" CTA navigates to Settings and calls `connectGoogleSync()`
 
@@ -373,7 +373,7 @@ Populated by `renderSyncMetaBadge()`, called from `renderSyncControls()` and `co
 - If **no cloud file exists**, migration modal is bypassed entirely (silent upload)
 
 ### Reset Sync
-- `resetSyncData()` — finds and DELETEs `dabbux_sync_v4.json` from Drive
+- `resetSyncData()` — finds and DELETEs `trex_sync_v4.json` from Drive
 - Resets `state.syncEnabled`, `lastSyncedAt`, `syncStatus`; clears in-memory token
 - Local data is **never** touched — only the Drive file is deleted
 - Surfaced as "Reset Sync" button in the Cloud Sync settings panel

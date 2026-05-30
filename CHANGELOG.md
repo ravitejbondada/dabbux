@@ -1,10 +1,21 @@
-# DabbuX — Changelog
+# TReX - Changelog
 
 Format: `[version] YYYY-MM-DD — summary`
 Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
+## [v3.2] 2026-05-30 - Repo rename follow-through and new sync file
+
+**What changed:** Completed the follow-up after renaming the folder/repo to **TReX** and intentionally moved test cloud sync to a new Drive file.
+
+**Files modified:**
+- `README.md` - updated live app and repository links to `ravitejbondada/TReX`.
+- `js/sync.js` - renamed Drive sync file from `dabbux_sync_v4.json` to `trex_sync_v4.json`, onboarding session key from `dabbux_onboarding_seen` to `trex_onboarding_seen`, and GIS ready callback from `_dabbuxGISReady` to `_trexGISReady`.
+- `index.html` - updated displayed Drive target and GIS script `onload` callback.
+- `ARCHITECTURE.md`, `FUNCTIONS.md`, `working.md` - updated sync filename/session key/callback references.
+
+**Migration note:** Existing test data in the old `dabbux_sync_v4.json` Drive file will not be read by this version. A fresh `trex_sync_v4.json` file will be created on next connect/sync.
 ## [v3.1] 2026-05-30 — Rebrand app to TReX
 
 **What changed:** Updated the current app brand from DabbuX to **TReX** with the tagline **Devour Your Expenses**.
@@ -16,7 +27,7 @@ Files listed are the ones modified. Always update this on any meaningful change.
 - `js/*.js` — updated current file headers, notifications, backup export labels, sync copy, and PDF report branding.
 
 **Compatibility notes:**
-- Kept `dabbux_sync_v4.json`, `dabbux_onboarding_seen`, the `androidWalletState_v4` localStorage key, and existing GitHub Pages/repository URLs unchanged so current sync data, installed browsers, and deployment links continue working.
+- Initial rebrand kept compatibility-critical names temporarily; v3.2 intentionally moves the test sync file/session key/repo URLs to TReX names.
 
 ## [v3.0] 2026-05-30 — Documentation reconciliation for sync and PDF reports
 
@@ -88,9 +99,9 @@ Files listed are the ones modified. Always update this on any meaningful change.
 **What changed:** Fixed three compounding bugs that left the Cloud Sync panel permanently stuck on "Checking..." and the header icon invisible. Root cause was `updateSyncStatus` function declaration missing from `sync.js` (body existed but signature was deleted), `switchScreen('settings')` never refreshing sync UI on navigation, and the GIS SDK loading async before `initGoogleAuth` was called. Added inline boot patch to `index.html` as a cache-proof safety net.
 
 **Files modified:**
-- `js/sync.js` — restored missing `function updateSyncStatus(status, detail = "")` declaration (function body was orphaned as top-level statements, causing ReferenceError on every call); restored `updateHeaderSyncIcon` as a separate correctly-ordered function; button now always visible (gray `cloud-off` when sync disabled, never `hidden`); `syncFromDrive()` guards early if GIS SDK not ready (sets `offline` cleanly instead of hanging); `initGoogleAuth()` no longer calls `updateSyncStatus` on SDK-not-ready (prevented circular crash at boot); added `window._dabbuxGISReady` callback so `initGoogleAuth` fires the moment the GIS SDK finishes loading.
+- `js/sync.js` — restored missing `function updateSyncStatus(status, detail = "")` declaration (function body was orphaned as top-level statements, causing ReferenceError on every call); restored `updateHeaderSyncIcon` as a separate correctly-ordered function; button now always visible (gray `cloud-off` when sync disabled, never `hidden`); `syncFromDrive()` guards early if GIS SDK not ready (sets `offline` cleanly instead of hanging); `initGoogleAuth()` no longer calls `updateSyncStatus` on SDK-not-ready (prevented circular crash at boot); added `window._trexGISReady` callback so `initGoogleAuth` fires the moment the GIS SDK finishes loading.
 - `js/core.js` — `switchScreen('settings')` now calls `renderSyncControls()` + `updateSyncStatus()` every time Settings opens (previously only `renderSettingsLists()` was called, leaving sync panel stale); `window.onload` boot order corrected: `initLucideIcons()` before `updateHeaderSyncIcon()`; explicit `updateSyncStatus("offline")` called at boot when sync is disabled.
-- `index.html` — removed `hidden` class from `#headerSyncBtn`; default icon changed from `cloud` to `cloud-off`; GIS script tag gains `onload` callback to trigger `_dabbuxGISReady`; Client ID field placeholder now shows actual default Client ID with explanatory note; added inline `SYNC UI BOOT PATCH` script at end of `<body>` that calls `refreshSyncUI()` on `window.load` and wraps `switchScreen` — works as a cache-proof fallback even if `sync.js`/`core.js` are served stale from CDN/browser cache.
+- `index.html` — removed `hidden` class from `#headerSyncBtn`; default icon changed from `cloud` to `cloud-off`; GIS script tag gains `onload` callback to trigger `_trexGISReady`; Client ID field placeholder now shows actual default Client ID with explanatory note; added inline `SYNC UI BOOT PATCH` script at end of `<body>` that calls `refreshSyncUI()` on `window.load` and wraps `switchScreen` — works as a cache-proof fallback even if `sync.js`/`core.js` are served stale from CDN/browser cache.
 
 **Root causes fixed:**
 1. `updateSyncStatus` function declaration deleted from `sync.js` → ReferenceError on every call → status frozen at hardcoded "Checking..."
@@ -126,14 +137,14 @@ Files listed are the ones modified. Always update this on any meaningful change.
 **What changed:** Implemented full Google Drive `appDataFolder` sync engine with onboarding, migration, and reset capabilities.
 
 **Files modified:**
-- [js/sync.js](file:///c:/VS_Code/dabbux/js/sync.js) — **new file**. Added: OAuth via GIS (`initGoogleAuth`, `getValidToken`); Drive REST API wrappers (`fetchWithRetry`, `findSyncFileId`, `createSyncFile`, `updateSyncFile`, `downloadSyncFile`); sync engine (`pushToDrive`, `syncFromDrive`, `applyRemoteState`); conflict modal (`showConflictModal`); status UI (`updateSyncStatus`); settings controls (`connectGoogleSync`, `disconnectGoogleSync`, `triggerManualSync`, `saveCustomClientId`, `renderSyncControls`); onboarding modal (`showOnboardingModal`, `checkAndShowOnboardingModal`); migration modal (`showMigrationModal`); reset (`resetSyncData`).
-- [js/core.js](file:///c:/VS_Code/dabbux/js/core.js) — added `syncEnabled`, `updatedAt`, `lastSyncedAt`, `syncStatus`, `googleClientId` to `state`; `saveStateToLocalStorage()` now sets `updatedAt` and triggers debounced `pushToDrive()`; `window.onload` calls `syncFromDrive()` and `checkAndShowOnboardingModal()`.
-- [index.html](file:///c:/VS_Code/dabbux/index.html) — added GIS and Drive API CDN script tags; injected Cloud Sync settings UI block (status indicator, Client ID field, sync controls container); relocated Cloud Sync section to appear directly below Base Engine Settings; registered `<script src="js/sync.js">`.
+- [js/sync.js](file:///c:/VS_Code/TReX/js/sync.js) — **new file**. Added: OAuth via GIS (`initGoogleAuth`, `getValidToken`); Drive REST API wrappers (`fetchWithRetry`, `findSyncFileId`, `createSyncFile`, `updateSyncFile`, `downloadSyncFile`); sync engine (`pushToDrive`, `syncFromDrive`, `applyRemoteState`); conflict modal (`showConflictModal`); status UI (`updateSyncStatus`); settings controls (`connectGoogleSync`, `disconnectGoogleSync`, `triggerManualSync`, `saveCustomClientId`, `renderSyncControls`); onboarding modal (`showOnboardingModal`, `checkAndShowOnboardingModal`); migration modal (`showMigrationModal`); reset (`resetSyncData`).
+- [js/core.js](file:///c:/VS_Code/TReX/js/core.js) — added `syncEnabled`, `updatedAt`, `lastSyncedAt`, `syncStatus`, `googleClientId` to `state`; `saveStateToLocalStorage()` now sets `updatedAt` and triggers debounced `pushToDrive()`; `window.onload` calls `syncFromDrive()` and `checkAndShowOnboardingModal()`.
+- [index.html](file:///c:/VS_Code/TReX/index.html) — added GIS and Drive API CDN script tags; injected Cloud Sync settings UI block (status indicator, Client ID field, sync controls container); relocated Cloud Sync section to appear directly below Base Engine Settings; registered `<script src="js/sync.js">`.
 
 **Features shipped:**
 - **Onboarding modal** — bottom-sheet warning fires 1.2 s after boot when sync is off; uses `sessionStorage` so it retriggers in every incognito session.
 - **Migration modal** — shown before OAuth when local data exists; user chooses "Merge" (push local to Drive) or "Fresh Start" (pull cloud over local); cancel aborts auth.
-- **Reset Sync** — deletes `dabbux_sync_v4.json` from Drive and disconnects; local data untouched.
+- **Reset Sync** — deletes `trex_sync_v4.json` from Drive and disconnects; local data untouched.
 - **Conflict resolution** — last-write-wins by `updatedAt`; conflict modal shown when both sides have data and timestamps diverge.
 - **Exponential backoff** — `fetchWithRetry()` retries failed Drive calls at 2 s, 5 s, 15 s; token auto-refreshed on 401.
 
@@ -144,13 +155,13 @@ Files listed are the ones modified. Always update this on any meaningful change.
 **What changed:** Removed all dummy/mock transactions, mock saving goals, mock quick logs, and specific credit card defaults to ensure a clean slate onboarding experience for new users. Added robust empty state views, budget placeholder guidance, and safety checks for default payment references.
 
 **Files modified:**
-- [core.js](file:///c:/VS_Code/dabbux/js/core.js) — cleared active/historical mock transactions, mock goals; reset budget defaults to 0 and cycle type/day to calendar-first defaults; simplified category and payment seeding.
-- [dashboard.js](file:///c:/VS_Code/dabbux/js/dashboard.js) — added prompt to set monthly budget if 0; hid forecast card if no budget/spend exists; cleared default quick logs array.
-- [reports.js](file:///c:/VS_Code/dabbux/js/reports.js) — added empty state verification and fallbacks for report charts and month-over-month view when transactions are empty.
-- [settings.js](file:///c:/VS_Code/dabbux/js/settings.js) — added budget field placeholder.
-- [transactions.js](file:///c:/VS_Code/dabbux/js/transactions.js) — added check to ensure referenced default payment method exists and is not archived before applying to category transaction forms.
-- [README.md](file:///c:/VS_Code/dabbux/README.md) — updated data persistence section to remove mock transactions reference.
-- [ARCHITECTURE.md](file:///c:/VS_Code/dabbux/ARCHITECTURE.md) — updated state object template with new default onboarding values.
+- [core.js](file:///c:/VS_Code/TReX/js/core.js) — cleared active/historical mock transactions, mock goals; reset budget defaults to 0 and cycle type/day to calendar-first defaults; simplified category and payment seeding.
+- [dashboard.js](file:///c:/VS_Code/TReX/js/dashboard.js) — added prompt to set monthly budget if 0; hid forecast card if no budget/spend exists; cleared default quick logs array.
+- [reports.js](file:///c:/VS_Code/TReX/js/reports.js) — added empty state verification and fallbacks for report charts and month-over-month view when transactions are empty.
+- [settings.js](file:///c:/VS_Code/TReX/js/settings.js) — added budget field placeholder.
+- [transactions.js](file:///c:/VS_Code/TReX/js/transactions.js) — added check to ensure referenced default payment method exists and is not archived before applying to category transaction forms.
+- [README.md](file:///c:/VS_Code/TReX/README.md) — updated data persistence section to remove mock transactions reference.
+- [ARCHITECTURE.md](file:///c:/VS_Code/TReX/ARCHITECTURE.md) — updated state object template with new default onboarding values.
 
 ---
 
@@ -182,8 +193,8 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 **What changed:** Renamed the project from "Trex" to "DabbuX — Personal Finance Made Personal". Replaced canvas-generated favicon with a static `assets/icon.png`. Deployed to GitHub Pages.
 
-**Live URL:** https://ravitejbondada.github.io/dabbux/
-**Repository:** https://github.com/ravitejbondada/dabbux
+**Live URL:** https://ravitejbondada.github.io/TReX/
+**Repository:** https://github.com/ravitejbondada/TReX
 
 **Files modified:**
 - `index.html` — updated `<title>`, `apple-mobile-web-app-title` meta, PWA manifest name/short_name/icon, header app name + tagline, lock screen title. Replaced dynamic `<link id="dynamicFavicon">` and `<link id="dynamicAppleIcon">` with static `<link rel="icon">` and `<link rel="apple-touch-icon">` pointing to `assets/icon.png`
