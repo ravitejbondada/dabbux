@@ -113,7 +113,7 @@ function updateAppDashboardView() {
         document.getElementById("budgetProgressBar").style.width = "0%";
         document.getElementById("budgetProgressBar").className = "bg-slate-700 h-full rounded-full transition-all duration-700";
         const emojiEl = document.getElementById("budgetHealthEmoji");
-        if (emojiEl) emojiEl.textContent = "ðŸŽ¯";
+        if (emojiEl) emojiEl.textContent = "🎯";
         const overAlert = document.getElementById("overBudgetAlert");
         if (overAlert) { overAlert.classList.add("hidden"); overAlert.classList.remove("flex"); }
         document.getElementById("safeToSpendDisplay").textContent = `â€” / day`;
@@ -140,12 +140,12 @@ function updateAppDashboardView() {
         // Health emoji
         const emojiEl = document.getElementById("budgetHealthEmoji");
         if (emojiEl) {
-            let emoji = "ðŸ˜„";
-            if (rawPercent >= 100) emoji = "ðŸ˜±";
-            else if (rawPercent >= 85) emoji = "ðŸ˜°";
-            else if (rawPercent >= 70) emoji = "ðŸ˜Ÿ";
-            else if (rawPercent >= 50) emoji = "ðŸ˜";
-            else if (rawPercent >= 25) emoji = "ðŸ™‚";
+            let emoji = "😄";
+            if (rawPercent >= 100) emoji = "😱";
+            else if (rawPercent >= 85) emoji = "😰";
+            else if (rawPercent >= 70) emoji = "😟";
+            else if (rawPercent >= 50) emoji = "😐";
+            else if (rawPercent >= 25) emoji = "🙂";
             emojiEl.textContent = emoji;
         }
 
