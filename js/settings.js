@@ -1,6 +1,6 @@
 /**
  * settings.js — Settings, Categories & Payments
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * Settings form sync, currency selector, budget/cycle save, credit card
  * toggle, billing day helpers, credit card cycle utilities and snapshot

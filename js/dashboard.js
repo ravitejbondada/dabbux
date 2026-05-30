@@ -1,6 +1,6 @@
 /**
  * dashboard.js — Dashboard & Budget Widgets
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * Budget cycle calculations, dashboard view renderer, forecast card,
  * spend heatmap, quick log system, budget alerts, daily reminders,
@@ -509,7 +509,7 @@ function checkBudgetAlerts(metrics) {
         const key = `${threshold}_${new Date().getMonth()}_${new Date().getFullYear()}`;
         if (pct >= threshold && !fired.includes(key)) {
             fired.push(key);
-            new Notification("Trex — Budget Alert 🔔", {
+            new Notification("TReX — Budget Alert 🔔", {
                 body: `You've used ${threshold}% of your monthly budget (${state.currencySymbol}${metrics.totalSpent.toLocaleString()} of ${state.currencySymbol}${state.monthlyBudget.toLocaleString()}).`,
                 icon: document.getElementById("dynamicAppleIcon")?.href || ""
             });
@@ -573,10 +573,10 @@ function scheduleDailyReminder() {
     _reminderTimer = setTimeout(() => {
         const today = new Date().toISOString().split("T")[0];
         const todayTxCount = state.transactions.filter(t => t.date === today).length;
-        new Notification("Trex — Daily Review 📋", {
+        new Notification("TReX — Daily Review 📋", {
             body: todayTxCount > 0
                 ? `You've logged ${todayTxCount} expense${todayTxCount > 1 ? 's' : ''} today. Tap to review and make sure nothing's missing!`
-                : `No expenses logged today yet. Open Trex to record and review your day's spending.`,
+                : `No expenses logged today yet. Open TReX to record and review your day's spending.`,
             icon: document.getElementById("dynamicAppleIcon")?.href || ""
         });
         // Re-schedule for the next day

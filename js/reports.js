@@ -1,6 +1,6 @@
 /**
  * reports.js — Analytics & Reports
- * Trex — Track Expenses
+ * TReX - Devour Your Expenses
  *
  * Chart helpers (doughnut, bar, gauge, tooltip), premium report charts,
  * report mode toggle (charts / accordion / MoM), historical month report,
@@ -869,7 +869,7 @@ function renderMomReport() {
 /**
  * Generates and downloads a beautifully structured multi-page PDF financial
  * summary report using html2canvas + jsPDF.
- * File name: DabbuX_Financial_Report_[Month].pdf
+ * File name: TReX_Financial_Report_[Month].pdf
  */
 async function generatePDFReport() {
     if (typeof window.jspdf === "undefined" || typeof html2canvas === "undefined") {
@@ -935,7 +935,7 @@ async function generatePDFReport() {
     container.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid #1e293b;">
             <div>
-                <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">DabbuX Financial Report</div>
+                <div style="font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;">TReX Financial Report</div>
                 <div style="font-size:13px;color:#64748b;margin-top:4px;font-weight:600;">${cycleLabel} · Generated ${new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"})}</div>
             </div>
             <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:10px 18px;text-align:right;">
@@ -1049,7 +1049,7 @@ async function generatePDFReport() {
 
         <!-- Footer -->
         <div style="margin-top:40px;padding-top:20px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center;">
-            <div style="font-size:10px;color:#334155;font-weight:600;">DabbuX — Personal Finance Made Personal</div>
+            <div style="font-size:10px;color:#334155;font-weight:600;">TReX - Devour Your Expenses</div>
             <div style="font-size:10px;color:#334155;font-weight:600;">Confidential — ${new Date().toISOString().split("T")[0]}</div>
         </div>
     `;
@@ -1085,7 +1085,7 @@ async function generatePDFReport() {
             pageCount++;
         }
 
-        const fileName = `DabbuX_Financial_Report_${cycleMonthName}_${cycleYear}.pdf`;
+        const fileName = `TReX_Financial_Report_${cycleMonthName}_${cycleYear}.pdf`;
         pdf.save(fileName);
         showNotification(`Report downloaded: ${fileName}`);
     } catch (err) {

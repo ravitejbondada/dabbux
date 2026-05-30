@@ -1,6 +1,6 @@
 /**
  * goals-trips.js — Saving Goals & Trips
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * Saving goals list, goal accordion, contribution editor, goal funding,
  * trips list, trip create/edit/detail/delete, trip expense add/edit/delete,

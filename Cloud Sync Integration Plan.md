@@ -1,10 +1,10 @@
-DabbuX — Cloud Sync Integration Plan
+TReX - Cloud Sync Integration Plan
 
 1. Project Requirements & Goals
 
 Core Philosophy: Local-First, Cloud-Secondary
 
-DabbuX must continue to operate as a high-performance offline PWA. localStorage remains the primary source of truth. Cloud sync via Google Drive serves as a background backup and multi-device consistency layer.
+TReX must continue to operate as a high-performance offline PWA. localStorage remains the primary source of truth. Cloud sync via Google Drive serves as a background backup and multi-device consistency layer.
 
 User Trust & Data Safety
 

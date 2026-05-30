@@ -1,6 +1,6 @@
 /**
  * core.js — App Core
- * DabbuX — Personal Finance Made Personal
+ * TReX - Devour Your Expenses
  *
  * Global state, constants, localStorage persistence, app boot (window.onload),
  * switchScreen router, theme, notifications, custom confirm dialog,

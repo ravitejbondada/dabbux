@@ -1,4 +1,4 @@
-# DabbuX — Architecture Reference
+# TReX - Architecture Reference
 
 > Primary reference for AI-assisted sessions. Read this before touching any file.
 
@@ -37,8 +37,8 @@ index.html
 
 ```json
 {
-  "name": "DabbuX Personal Finance",
-  "short_name": "DabbuX",
+  "name": "TReX Expense Tracker",
+  "short_name": "TReX",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#020617",
@@ -306,7 +306,7 @@ Last-write-wins using `state.updatedAt` ISO timestamp:
   budget alert settings follow the newer state. `creditCardsEnabled=true` is
   preserved across devices so a stale `false` cannot hide card mode.
 - `remoteTime === localTime` → already in sync, no-op
-- `remoteTime > localTime` + **ongoing sync** (device already connected) → remote arrays overwrite local (`transactions`, `trips`, `savingGoals`)
+- `remoteTime > localTime` after reconciliation → remote state applies locally
 - `local.monthlyBudget !== remote.monthlyBudget` → scoped **Budget Conflict Modal** (two-button: "This device" / "Cloud"); no full-page modal
 - `localTime > remoteTime` → push local to Drive
 
@@ -319,6 +319,11 @@ are **always preserved** (never overwritten from remote):
 - `state.syncUserEmail`
 - `state.syncDriveFileId`
 - `state.syncEnabled` (forced to `true`)
+
+Drive sync uses `normalizeSyncState()`, not the backup import normalizer, so the
+full live app shape is preserved during remote apply. This is important for
+settings such as `creditCardsEnabled`, `emis`, alert/reminder config, and sync
+metadata that are not part of the older backup import shape.
 
 UI is re-rendered immediately via `updateAppDashboardView()` + `renderSyncControls()`.
 No `window.location.reload()`.
@@ -333,13 +338,13 @@ No `window.location.reload()`.
 5. Call `renderSyncMetaBadge()` to display account + file info
 
 ### Auth Flow
-- GIS `initTokenClient` with `drive.appdata` scope
+- GIS `initTokenClient` with `drive.appdata`, `openid`, `email`, and `profile` scopes
 - `getValidToken(forceInteractive?)` — returns cached token if valid (1-min grace), else requests silently or interactively
 - Token refreshed on 401 inside `fetchWithRetry()`
 - `fetchWithRetry()` implements exponential backoff: `[2s, 5s, 15s]` retries
 
 ### Header Sync Icon (`#headerSyncBtn`)
-Rendered in the main app header bar. Hidden when `!state.syncEnabled`.
+Rendered in the main app header bar. Always visible: when sync is off it shows a gray `cloud-off` icon that opens Settings.
 
 | `syncStatus` | Icon | Color | Click action |
 |---|---|---|---|
@@ -362,8 +367,8 @@ Populated by `renderSyncMetaBadge()`, called from `renderSyncControls()` and `co
 
 ### Migration Modal (Merge / Fresh Start)
 - Shown inside `connectGoogleSync()` **only when** a cloud file already exists AND local data is present
-- **Merge:** `pushToDrive()` after auth — local state wins, overwrites cloud
-- **Fresh Start:** `syncFromDrive()` after auth — cloud state overwrites local
+- **Merge:** runs `syncFromDrive()` reconciliation and pushes the converged state back to Drive
+- **Fresh Start:** downloads the cloud file and applies it locally
 - Cancel aborts; no state changes committed
 - If **no cloud file exists**, migration modal is bypassed entirely (silent upload)
 

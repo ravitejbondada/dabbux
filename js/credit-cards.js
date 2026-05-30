@@ -1,6 +1,6 @@
 /**
  * credit-cards.js — Credit Card View & Analytics
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * Credit card view renderer, card detail panel, transaction row rendering,
  * payment lock helpers for expense form, card analytics chart (Chart.js).

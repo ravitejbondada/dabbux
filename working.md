@@ -1,10 +1,32 @@
-# Active Work Log - DabbuX Cloud Sync Updates
+# Active Work Log - TReX Cloud Sync Updates
 
 ## [Session Date]
 May 30, 2026
 
 ## [Current Phase]
-Phase 6 — Settings Sync Convergence — Complete ✅
+Phase 8 — Documentation Reconciliation — Complete ✅
+
+---
+
+## [Phase 8 Fix — May 30, 2026]
+
+| # | Fix | Status | Files |
+|---|---|---|---|
+| 1 | Updated README Cloud Sync behaviour to match current reconciliation engine | ✅ | `README.md` |
+| 2 | Updated Architecture sync flow, OAuth scopes, header icon, and migration semantics | ✅ | `ARCHITECTURE.md` |
+| 3 | Updated Function Index with PDF and sync helper functions | ✅ | `FUNCTIONS.md` |
+| 4 | Removed stale PDF pending notes; kept dynamic report-cycle selector pending | ✅ | `working.md` |
+
+---
+
+## [Phase 7 Fix — May 30, 2026]
+
+| # | Fix | Status | Files |
+|---|---|---|---|
+| 1 | Stopped using backup import normalizer for Drive sync remote apply | ✅ | `sync.js` |
+| 2 | Added `normalizeSyncState()` to preserve full live app fields during sync | ✅ | `sync.js` |
+| 3 | Fixed `creditCardsEnabled=true` being stripped after remote apply | ✅ | `sync.js` |
+| 4 | Verified remote apply keeps Credit Cards enabled, preserves EMIs, and updates Settings toggle | ✅ | local browser test |
 
 ---
 
@@ -77,25 +99,10 @@ Phase 6 — Settings Sync Convergence — Complete ✅
 
 ---
 
-## [Pending — index.html Manual Changes Still Required]
+## [Pending]
 
-These were flagged in Phase 2 and are NOT yet applied:
-
-### A — PDF CDN Tags (add before closing `</body>`):
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-```
-
-### B — Download PDF Button (inside `#reportsView`):
-```html
-<button onclick="generatePDFReport()"
-    class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-95 shadow-lg">
-    <i data-lucide="file-down" class="w-4 h-4"></i> Download PDF Summary Report
-</button>
-```
-
-### C — `#reportCycleSelector` — replace hardcoded options with dynamic population
+### A — `#reportCycleSelector` dynamic population
+The Reports statement-cycle selector is still hardcoded in `index.html`; replace it with dynamic options derived from available transaction cycles.
 
 ---
 
@@ -109,5 +116,4 @@ These were flagged in Phase 2 and are NOT yet applied:
 ---
 
 ## [Resume Instructions]
-Re-upload: `sync.js`, `core.js`, `index.html` to verify sync panel is working.
-Then: apply PDF CDN tags + button to `index.html` and upload `reports.js` to complete Phase 2 PDF feature.
+Re-upload the changed files, then verify multi-device Drive sync with Settings, categories, payments, transactions, trips, goals, recurring expenses, EMIs, and Credit Cards enabled.

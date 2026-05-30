@@ -1,6 +1,6 @@
 /**
  * sync.js — Google Drive AppData Sync Engine
- * DabbuX — Personal Finance Made Personal
+ * TReX - Devour Your Expenses
  *
  * Handles silent OAuth 2.0 authorization via GIS, Google Drive REST API calls,
  * local-first sync coordination, timestamp-based last-write-wins merging,
@@ -132,7 +132,7 @@ async function fetchWithRetry(url, options = {}, retries = [2000, 5000, 15000]) 
 }
 
 /**
- * Finds the file ID of DabbuX sync file in appDataFolder
+ * Finds the file ID of TReX sync file in appDataFolder
  */
 async function findSyncFileId(token) {
     const query = encodeURIComponent("name = 'dabbux_sync_v4.json' and 'appDataFolder' in parents and trashed = false");
@@ -231,7 +231,7 @@ async function pushToDrive() {
         // Save state avoiding sync loop
         localStorage.setItem("androidWalletState_v4", JSON.stringify(state));
         updateSyncStatus("idle");
-        console.log("DabbuX successfully pushed local data to Drive.");
+        console.log("TReX successfully pushed local data to Drive.");
     } catch (e) {
         console.error("pushToDrive error:", e);
         updateSyncStatus("error", e.message || "Failed to push");
@@ -494,11 +494,7 @@ function applyRemoteState(remoteState, silent = false) {
     const preservedEmail = state.syncUserEmail || remoteState.syncUserEmail || "";
     const preservedFileId = state.syncDriveFileId || "";
 
-    if (typeof normalizeImportedState === "function") {
-        state = normalizeImportedState(remoteState);
-    } else {
-        state = remoteState;
-    }
+    state = normalizeSyncState(remoteState);
 
     // Restore local device connection config — never inherit from remote
     state.googleClientId = preservedClientId;
@@ -520,6 +516,38 @@ function applyRemoteState(remoteState, silent = false) {
     try { renderCreditCardsView(); } catch (e) {}
     try { renderSyncControls(); } catch (e) {}
     updateSyncStatus("idle");
+}
+
+/**
+ * Normalizes Drive sync state without dropping app fields. The backup import
+ * normalizer rebuilds a smaller backup shape, so using it here strips live
+ * settings like creditCardsEnabled, alert/reminder config, and EMIs.
+ */
+function normalizeSyncState(remoteState) {
+    const src = (remoteState && remoteState.data) ? remoteState.data : (remoteState || {});
+    const next = { ...state, ...src };
+
+    next.categories = Array.isArray(src.categories) ? src.categories : (state.categories || []);
+    next.payments = Array.isArray(src.payments) ? src.payments : (state.payments || []);
+    next.transactions = Array.isArray(src.transactions) ? src.transactions : [];
+    next.savingGoals = Array.isArray(src.savingGoals) ? src.savingGoals : [];
+    next.recurringExpenses = Array.isArray(src.recurringExpenses) ? src.recurringExpenses : [];
+    next.emis = Array.isArray(src.emis) ? src.emis : [];
+    next.trips = Array.isArray(src.trips) ? src.trips : [];
+
+    if (next.creditCardsEnabled === undefined) next.creditCardsEnabled = false;
+    if (!next.currency) next.currency = "INR";
+    if (!next.currencySymbol) next.currencySymbol = "\u20B9";
+    if (!next.cycleType) next.cycleType = "calendar";
+    if (!next.cycleDay) next.cycleDay = 1;
+    if (!next.theme) next.theme = "dark";
+    if (!next.pinCode) next.pinCode = "1234";
+    if (!next.updatedAt) next.updatedAt = new Date().toISOString();
+    if (next.lastSyncedAt === undefined) next.lastSyncedAt = "";
+    if (next.syncStatus === undefined) next.syncStatus = "idle";
+    if (next.syncUserEmail === undefined) next.syncUserEmail = "";
+    if (next.syncDriveFileId === undefined) next.syncDriveFileId = "";
+    return next;
 }
 
 /**
@@ -1005,7 +1033,7 @@ function showOnboardingModal() {
                 <div>
                     <h3 class="text-sm font-extrabold text-white leading-tight">Your data is local-only</h3>
                     <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                        DabbuX stores all your data in this browser. If you <strong class="text-amber-400">clear your cache, switch browsers, or use incognito</strong>, your transactions, goals, and settings will be permanently lost.
+                        TReX stores all your data in this browser. If you <strong class="text-amber-400">clear your cache, switch browsers, or use incognito</strong>, your transactions, goals, and settings will be permanently lost.
                     </p>
                 </div>
             </div>
@@ -1137,12 +1165,12 @@ function showMigrationModal() {
 ───────────────────────────────────────────────────────────────────────── */
 
 /**
- * Deletes the DabbuX sync file from Google Drive appDataFolder
+ * Deletes the TReX sync file from Google Drive appDataFolder
  * and resets all local sync state. Provides a clean slate for re-setup.
  */
 async function resetSyncData() {
     const confirmed = await customConfirm(
-        "This will permanently delete your DabbuX backup from Google Drive and disconnect sync on this device. Your local data will remain untouched. This cannot be undone.",
+        "This will permanently delete your TReX backup from Google Drive and disconnect sync on this device. Your local data will remain untouched. This cannot be undone.",
         "Reset Sync Data",
         "Delete & Reset"
     );
@@ -1158,7 +1186,7 @@ async function resetSyncData() {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });
-            console.log("DabbuX Drive sync file deleted.");
+            console.log("TReX Drive sync file deleted.");
         }
     } catch (e) {
         console.error("resetSyncData Drive delete failed:", e);

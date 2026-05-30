@@ -1,6 +1,6 @@
 /**
  * auth.js — PIN & App Lock
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * PIN lock screen: lock/unlock app, PIN entry buffer, biometric simulation,
  * visual dot indicators, PIN change flow, lock button header state.

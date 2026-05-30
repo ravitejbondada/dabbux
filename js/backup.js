@@ -1,6 +1,6 @@
 /**
  * backup.js — Data Backup & Restore
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * JSON and CSV export, JSON and CSV import, state validation,
  * full state restore, CSV parsing helpers, backup payload builder.
@@ -10,7 +10,7 @@
  */
 
 const BACKUP_FORMAT_VERSION = 1;
-const BACKUP_APP_ID = "Trex";
+const BACKUP_APP_ID = "TReX";
 
 function cloneStateSnapshot() {
     return JSON.parse(JSON.stringify(state));
@@ -355,7 +355,7 @@ function exportDataToJSON() {
 
 function exportDataToCSV() {
     const date = new Date().toISOString().split("T")[0];
-    let csv = `# Trex Full Backup v${BACKUP_FORMAT_VERSION}\n`;
+    let csv = `# TReX Full Backup v${BACKUP_FORMAT_VERSION}\n`;
     csv += `# ExportedAt,${new Date().toISOString()}\n\n`;
 
     csv += "[SETTINGS]\n";

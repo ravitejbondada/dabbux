@@ -1,4 +1,4 @@
-# DabbuX — Personal Finance Made Personal
+# TReX - Devour Your Expenses
 
 A local-first personal finance PWA. Runs entirely in the browser with no backend.
 All data lives in `localStorage`. Designed as a mobile-first installable app.
@@ -49,7 +49,7 @@ The app icon is served from `assets/favicon.png` and referenced by both the HTML
 ## Project Structure
 
 ```
-dabbux/
+TReX/
 ├── index.html          HTML shell — all views + CDN script tags + module loaders
 ├── manifest.json       External PWA manifest for proper icon resolution
 ├── styles.css          All app CSS (dark/light theme, glassmorphism, dropdowns)
@@ -102,15 +102,16 @@ Cloud sync is **live** via `js/sync.js`. It uses the Google Identity Services (G
 
 **Key behaviours:**
 - On every `saveStateToLocalStorage()` call a debounced (3 s) `pushToDrive()` is triggered.
-- On `window.onload`, `syncFromDrive()` pulls the remote state and applies a **silent background merge** — no intrusive conflict modals.
+- On `window.onload`, `syncFromDrive()` pulls the remote state and applies a **silent background reconciliation** with no intrusive conflict modals.
 - A `visibilitychange` listener fires `syncFromDrive()` whenever the user switches back to the app tab.
-- **Ongoing sync:** remote arrays (`transactions`, `trips`, `savingGoals`) overwrite local — remote is source of truth.
-- **Initial account linkage** (data on both sides): arrays are deduplicate-merged by unique `id`; merged result is pushed back to Drive.
+- **Multi-device convergence:** categories, payments, transactions, saving goals, trips, recurring expenses, and EMIs are merged by stable `id`; merged results are pushed back to Drive so devices converge.
+- **Shared settings sync:** currency, budget/cycle settings, theme, reminders, and budget alerts follow the newer state; `creditCardsEnabled=true` is preserved across devices.
+- **Drive apply safety:** sync uses `normalizeSyncState()` so full live app fields are preserved; it does not use the backup import normalizer.
 - **Budget discrepancy:** a scoped two-button modal asks which budget to keep; all other data syncs silently.
 - A **Migration modal** (Merge / Fresh Start) is shown only when an existing Drive file is found and local data is present.
 - An **Onboarding modal** warns new users about local-only data loss risks. Uses `sessionStorage` so it re-triggers in incognito.
 - **Reset Sync** deletes the `dabbux_sync_v4.json` file from `appDataFolder` and disconnects the device cleanly.
-- **Header sync icon** (`#headerSyncBtn`) — visible in the app header when sync is enabled; shows live status (`cloud-check` / spinning `refresh-cw` / `cloud-off`) and provides one-tap access to manual sync or settings.
+- **Header sync icon** (`#headerSyncBtn`) — always visible in the app header; shows live status (`cloud-check` / spinning `refresh-cw` / `cloud-off`) and provides one-tap access to manual sync or settings.
 - **Account metadata badge** in the Settings panel shows the connected Google email and the Drive file ID once authenticated.
 
 **Default OAuth Client ID:** `219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.apps.googleusercontent.com` (hardcoded fallback; overridable via Advanced Sync Settings).
@@ -118,6 +119,10 @@ Cloud sync is **live** via `js/sync.js`. It uses the Google Identity Services (G
 **Drive file:** `dabbux_sync_v4.json` inside the `appDataFolder` (private to this app, invisible to the user's Drive).
 
 See `ARCHITECTURE.md` for the full sync design and `FUNCTIONS.md` for the `sync.js` function index.
+
+## PDF Reports
+
+The Reports / Premium Insights screen includes a **Download PDF Summary Report** button. It uses `html2canvas` and `jsPDF` CDN scripts loaded in `index.html` and exports the selected statement cycle.
 
 ---
 

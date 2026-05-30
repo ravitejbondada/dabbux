@@ -1,4 +1,4 @@
-# DabbuX — Function Index
+# TReX - Function Index
 
 Searchable reference of all 252 functions. Format: `functionName` — what it does.
 
@@ -109,7 +109,7 @@ To find where to add/edit something, scan the relevant section header then go to
 
 ---
 
-## reports.js — Analytics & Reports (19 functions)
+## reports.js — Analytics & Reports (20 functions)
 
 | Function | Description |
 |---|---|
@@ -132,6 +132,7 @@ To find where to add/edit something, scan the relevant section header then go to
 | `sumByCategory(txs)` | Aggregates transaction array into `{ categoryId: totalAmount }` map |
 | `cycleLabelFromKey(key)` | Converts a cycle key string to a human-readable label |
 | `renderMomReport()` | Renders the full month-over-month comparison section |
+| `generatePDFReport()` | Generates and downloads a PDF summary report for the selected statement cycle using html2canvas + jsPDF |
 
 ---
 
@@ -323,13 +324,13 @@ To find where to add/edit something, scan the relevant section header then go to
 
 ---
 
-## sync.js — Google Drive Cloud Sync (26 functions)
+## sync.js — Google Drive Cloud Sync (31 functions)
 
 **Auth & Token Management**
 
 | Function | Description |
 |---|---|
-| `initGoogleAuth(forceInteractive?)` | Initialises the GIS `TokenClient` with the configured Client ID and `drive.appdata` scope; sets up the OAuth callback |
+| `initGoogleAuth(forceInteractive?)` | Initialises the GIS `TokenClient` with Drive AppData plus `openid email profile` scopes; sets up the OAuth callback |
 | `getValidToken(forceInteractive?)` | Returns a valid OAuth token from cache if not expired (1-min grace); otherwise requests one silently or interactively via GIS |
 
 **Drive API Wrappers**
@@ -347,10 +348,13 @@ To find where to add/edit something, scan the relevant section header then go to
 | Function | Description |
 |---|---|
 | `pushToDrive()` | Serializes `state` and uploads it to Drive; updates `state.lastSyncedAt` on success |
-| `syncFromDrive()` | Silent background pull: compares `updatedAt` timestamps; ongoing sync → remote overwrites arrays; initial linkage → deduplicate-merge by `id`; budget discrepancy → `_showBudgetConflictModal()`; no intrusive conflict popups |
+| `syncFromDrive()` | Silent background pull: reconciles categories, payments, transactions, goals, trips, recurring expenses, and EMIs by `id`; applies newer shared settings; pushes converged state back to Drive when needed |
+| `buildMergedSyncState(localState, remoteState)` | Builds a converged state object from local + remote collections and shared settings |
+| `sameSyncArrays(a, b)` | Compares sync-relevant arrays and scalar settings to detect whether reconciliation changed either side |
 | `applyRemoteState(remoteState, silent?)` | Normalizes and applies a remote state object; preserves `googleClientId`, `syncUserEmail`, `syncDriveFileId`; forces `syncEnabled=true`; re-renders UI without page reload |
-| `_applyRemoteSilent(remoteState, isInitialLinkage, token, fileId)` | Internal: applies remote state after conflict decisions; merges or overwrites arrays based on `isInitialLinkage` flag; pushes merged result back to Drive on initial linkage |
+| `_applyRemoteSilent(remoteState, isInitialLinkage, token, fileId)` | Legacy/internal helper for applying remote state after budget conflict decisions |
 | `_showBudgetConflictModal(localBudget, remoteBudget, onResolved)` | Scoped two-button modal for budget-only discrepancy; calls `onResolved(keepRemote: boolean)` |
+| `normalizeSyncState(remoteState)` | Normalizes Drive sync state while preserving the full live app shape, including `creditCardsEnabled`, EMIs, alerts, reminders, and sync metadata |
 
 **Account & Metadata**
 
@@ -364,7 +368,8 @@ To find where to add/edit something, scan the relevant section header then go to
 | Function | Description |
 |---|---|
 | `updateSyncStatus(status, message?)` | Updates the sync status indicator in the settings panel (`idle` / `syncing` / `error` / `offline`); calls `updateHeaderSyncIcon()` |
-| `updateHeaderSyncIcon()` | Updates the `#headerSyncBtn` in the app header: `idle` → indigo `cloud-check` + `triggerManualSync()`; `syncing` → spinning `refresh-cw`; `error`/`offline` → slate `cloud-off` + `switchScreen('settings')`; hidden when sync disabled |
+| `updateHeaderSyncIcon()` | Updates the always-visible `#headerSyncBtn`: sync off/error/offline → gray `cloud-off` + Settings; `idle` → indigo `cloud-check` + `triggerManualSync()`; `syncing` → spinning `refresh-cw` |
+| `formatTimeAgo(isoString)` | Formats sync timestamps into compact relative text such as `just now`, `5m ago`, or `2h ago` |
 
 **Conflict Resolution (legacy — retained, no longer called by syncFromDrive)**
 

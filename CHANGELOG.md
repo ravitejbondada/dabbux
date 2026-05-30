@@ -5,6 +5,42 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
+## [v3.1] 2026-05-30 — Rebrand app to TReX
+
+**What changed:** Updated the current app brand from DabbuX to **TReX** with the tagline **Devour Your Expenses**.
+
+**Files modified:**
+- `index.html` — updated document title, Apple web app title, header brand/tagline, lock screen title, image alt text, and report-visible brand text.
+- `manifest.json` — updated PWA name and short name.
+- `README.md`, `ARCHITECTURE.md`, `FUNCTIONS.md`, `working.md`, `Cloud Sync Integration Plan.md` — updated current-facing project names/headings.
+- `js/*.js` — updated current file headers, notifications, backup export labels, sync copy, and PDF report branding.
+
+**Compatibility notes:**
+- Kept `dabbux_sync_v4.json`, `dabbux_onboarding_seen`, the `androidWalletState_v4` localStorage key, and existing GitHub Pages/repository URLs unchanged so current sync data, installed browsers, and deployment links continue working.
+
+## [v3.0] 2026-05-30 — Documentation reconciliation for sync and PDF reports
+
+**What changed:** Brought the project docs back in line with the current code after recent sync and Reports changes.
+
+**Files modified:**
+- `README.md` — updated Cloud Sync behaviour to describe multi-device reconciliation, full sync-state preservation, always-visible header icon, and PDF report export.
+- `ARCHITECTURE.md` — updated sync conflict flow, OAuth scopes, header icon behaviour, and Migration modal semantics.
+- `FUNCTIONS.md` — added `generatePDFReport()`, sync reconciliation helpers, `normalizeSyncState()`, and `formatTimeAgo()`; updated function counts.
+- `working.md` — removed stale PDF button/CDN pending notes; left only dynamic report-cycle selector as pending.
+
+## [v2.9] 2026-05-30 — Preserve full Drive state during remote apply
+
+**What changed:** Fixed the bug that could disable Credit Cards again after sync even when reconciliation had preserved `creditCardsEnabled=true`.
+
+**Files modified:**
+- `js/sync.js` — replaced use of `normalizeImportedState()` inside `applyRemoteState()` with a sync-specific `normalizeSyncState()` that preserves the full live app state shape.
+- `js/sync.js` — prevents Drive sync from dropping fields that the backup importer does not include, including `creditCardsEnabled`, `emis`, sync metadata, and alert/reminder settings.
+
+**Verification:**
+- Browser apply test confirms a remote state with `creditCardsEnabled=true` remains enabled locally.
+- Browser apply test confirms Settings toggle updates to checked immediately.
+- Browser apply test confirms EMIs survive remote apply.
+
 ## [v2.8] 2026-05-30 — Sync settings, categories, payments, and credit card mode
 
 **What changed:** Fixed remaining multi-device sync gaps where Settings changes could fail to appear on another device even when both devices pointed at the same Drive file.

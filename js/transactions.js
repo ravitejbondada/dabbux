@@ -1,6 +1,6 @@
 /**
  * transactions.js — Expense Form & Ledger
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * Add/edit expense form setup, form submission, category/payment dropdowns,
  * inline category & payment modals, history list renderer, ledger date

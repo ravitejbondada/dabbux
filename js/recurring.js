@@ -1,6 +1,6 @@
 /**
  * recurring.js — Recurring Expenses & EMIs
- * Trex — Track Expenses
+ * TReX � Devour Your Expenses
  *
  * Date utility helpers (getTodayISO, parseISODate, formatISODate),
  * recurring expense modal, save/delete/process recurring entries,
