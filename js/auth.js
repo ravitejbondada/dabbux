@@ -122,6 +122,111 @@ function syncBiometricLockUI() {
     btn.classList.toggle("hover:bg-indigo-900/60", ready);
 }
 
+function populateLockedQuickExpenseForm() {
+    const catSelect = document.getElementById("lockedExpenseCategory");
+    const paySelect = document.getElementById("lockedExpensePayment");
+    if (!catSelect || !paySelect) return;
+
+    catSelect.innerHTML = "";
+    paySelect.innerHTML = "";
+
+    const categories = [...(state.categories || [])].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    const payments = (state.payments || [])
+        .filter(pay => !pay.archived)
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+
+    categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        catSelect.appendChild(opt);
+    });
+
+    payments.forEach(pay => {
+        const opt = document.createElement("option");
+        opt.value = pay.id;
+        opt.textContent = `${pay.name} (${pay.type})`;
+        paySelect.appendChild(opt);
+    });
+
+    const disabled = categories.length === 0 || payments.length === 0;
+    catSelect.disabled = disabled;
+    paySelect.disabled = disabled;
+
+    catSelect.onchange = applyLockedCategoryDefaultPayment;
+    applyLockedCategoryDefaultPayment();
+
+    if (typeof initLucideIcons === "function") initLucideIcons(document.getElementById("lockedQuickExpenseForm"));
+}
+
+function applyLockedCategoryDefaultPayment() {
+    const catSelect = document.getElementById("lockedExpenseCategory");
+    const paySelect = document.getElementById("lockedExpensePayment");
+    if (!catSelect || !paySelect) return;
+    const cat = (state.categories || []).find(item => item.id === catSelect.value);
+    if (!cat || !cat.defaultPaymentId) return;
+    const targetPay = (state.payments || []).find(pay => pay.id === cat.defaultPaymentId && !pay.archived);
+    if (targetPay) paySelect.value = targetPay.id;
+}
+
+function clearLockedQuickExpenseForm() {
+    const amount = document.getElementById("lockedExpenseAmount");
+    const note = document.getElementById("lockedExpenseNote");
+    if (amount) amount.value = "";
+    if (note) note.value = "";
+}
+
+function submitLockedQuickExpense(event) {
+    if (event) event.preventDefault();
+
+    const amountEl = document.getElementById("lockedExpenseAmount");
+    const noteEl = document.getElementById("lockedExpenseNote");
+    const catSelect = document.getElementById("lockedExpenseCategory");
+    const paySelect = document.getElementById("lockedExpensePayment");
+    if (!amountEl || !noteEl || !catSelect || !paySelect) return;
+
+    const amount = parseFloat(amountEl.value);
+    const categoryId = catSelect.value;
+    const paymentId = paySelect.value;
+    const note = noteEl.value.trim();
+
+    if (isNaN(amount) || amount <= 0) {
+        showNotification("Please enter a valid amount.");
+        return;
+    }
+    if (!categoryId || !paymentId) {
+        showNotification("Choose an existing category and payment method.");
+        return;
+    }
+
+    const activeTrip = typeof getActiveTrip === "function" ? getActiveTrip() : null;
+    if (!activeTrip) {
+        showNotification("Unlock to add normal expenses. Locked quick add is only for active trip days.");
+        return;
+    }
+
+    if (!activeTrip.expenses) activeTrip.expenses = [];
+    activeTrip.expenses.push({
+        id: "te_lock_" + Date.now(),
+        desc: note || "Quick expense",
+        amount,
+        date: getTodayISO(),
+        categoryId,
+        paymentId,
+        type: "on",
+        ledgerTxId: null,
+        createdAt: getTodayISO(),
+        lockedQuickAdd: true
+    });
+
+    saveStateToLocalStorage();
+    clearLockedQuickExpenseForm();
+    try { renderActiveTripBanner(); } catch (e) {}
+    try { renderTripDetailStats(); } catch (e) {}
+    try { renderTripExpenses(); } catch (e) {}
+    showNotification(`Added to ${activeTrip.name}.`);
+}
+
 function lockApp() {
     if (!state.pinEnabled) {
         showNotification("Enable Security PIN in Settings first.");
@@ -134,6 +239,7 @@ function lockApp() {
     const lock = document.getElementById("simulatedLockScreen");
     lock.classList.remove("hidden", "opacity-0", "pointer-events-none");
     syncBiometricLockUI();
+    populateLockedQuickExpenseForm();
 
     document.querySelectorAll("#recurringModal, #pinSuccessModal, #inlineCategoryModal, #inlinePaymentModal, #editCategoryModal, #editPaymentModal")
         .forEach(el => el.classList.add("hidden"));

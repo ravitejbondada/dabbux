@@ -1,4 +1,4 @@
-# TReX - Architecture Reference
+﻿# TReX - Architecture Reference
 
 > Primary reference for AI-assisted sessions. Read this before touching any file.
 
@@ -10,6 +10,7 @@
 index.html
 │
 ├── manifest.json                  ← PWA Web App Manifest (external file)
+├── sw.js                          ← Service worker for notification click handling
 ├── styles.css                     ← All visual styling
 ├── assets/
 │   └── favicon.png               ← App icon (transparent, 512x512+)
@@ -17,8 +18,8 @@ index.html
 └── JS load order (sequential, globals shared via window scope)
     │
     ├── 1. core.js           ← MUST LOAD FIRST — defines `state`, all modules depend on it
-    ├── 2. auth.js           ← reads/writes state.pinEnabled, state.pinCode
-    ├── 3. dashboard.js      ← reads state extensively, calls saveStateToLocalStorage()
+    ├── 2. auth.js           ← lock/PIN, WebAuthn biometric unlock, locked trip quick add
+    ├── 3. dashboard.js      ← dashboard, quick logs, alerts, PWA reminders
     ├── 4. transactions.js   ← reads/writes state.transactions, state.categories, state.payments
     ├── 5. reports.js        ← reads state.transactions, state.categories, state.payments (read-only)
     ├── 6. settings.js       ← reads/writes all state fields; owns CC billing logic
@@ -94,8 +95,14 @@ let state = {
   pinCode: "1234",
   theme: "dark" | "light",
   dailyReminderEnabled: false,   // Push notification reminder toggle
-  dailyReminderTime: "09:00",    // HH:MM
-  budgetAlertEnabled: false,
+  dailyReminderTime: "21:00",    // HH:MM
+  dailyReminderLastShownDate: "",// YYYY-MM-DD, missed-reminder guard
+  budgetAlertsEnabled: false,
+  biometricEnabled: false,       // WebAuthn local credential toggle
+  biometricCredentialId: "",     // local credential id, device-local
+  biometricUserId: "",           // local WebAuthn user id, device-local
+  biometricLabel: "",
+  biometricRegisteredAt: "",
   budgetAlertThreshold: 80,      // Percent of budget
 
   // ── Core data ─────────────────────────────────────────────
@@ -133,7 +140,12 @@ let state = {
   syncStatus: "idle",          // "idle" | "syncing" | "error" | "offline"
   googleClientId: "",          // custom OAuth Client ID (falls back to DEFAULT_CLIENT_ID)
   syncUserEmail: "",           // email of the authenticated Google account (fetched post-OAuth)
-  syncDriveFileId: ""          // cached Drive file ID of trex_sync_v4.json
+  syncDriveFileId: "",         // cached Drive file ID of trex_sync_v4.json
+  deviceId: "",                // local device id
+  syncEpoch: "",               // reset-generation id
+  syncResetLineage: null,
+  syncResetHistory: [],
+  pendingCloudResetEpoch: ""
 }
 ```
 
@@ -382,6 +394,7 @@ Populated by `renderSyncMetaBadge()`, called from `renderSyncControls()` and `co
 - `resetAllData()` confirms destructive reset, replaces `trex_sync_v4.json` with a reset marker when a token is available, removes `androidWalletState_v4` from localStorage, clears `trex_onboarding_seen` from sessionStorage, and reloads the app.
 - Surfaced as "Full Reset: Cloud + Local" in the Settings Danger Zone whether sync is connected or disconnected.
 - Reset markers advance `syncEpoch` and preserve reset lineage so stale devices cannot silently merge pre-reset data into newer post-reset cloud data.
+- When a stale device chooses "Reset This Device Too", the marker is replaced with a fresh empty post-reset cloud state before local data is cleared, preventing repeated reset prompts.
 
 ---
 

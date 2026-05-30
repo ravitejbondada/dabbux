@@ -80,6 +80,54 @@ function buildResetMarker(previousEpoch) {
     };
 }
 
+function buildFreshStateAfterReset(marker) {
+    const resetAt = new Date().toISOString();
+    const lineage = marker.syncResetLineage || {
+        previousEpoch: marker.previousSyncEpoch || "",
+        resetAt: marker.resetAt || resetAt,
+        resetByDeviceId: marker.resetByDeviceId || ""
+    };
+    return {
+        currency: "INR",
+        currencySymbol: "\u20B9",
+        monthlyBudget: 0,
+        cycleType: "calendar",
+        cycleDay: 1,
+        creditCardsEnabled: false,
+        pinEnabled: false,
+        pinCode: "1234",
+        categories: [...DEFAULT_CATEGORIES],
+        payments: [...DEFAULT_PAYMENTS],
+        transactions: [],
+        savingGoals: [...DEFAULT_SAVING_GOALS],
+        recurringExpenses: [],
+        emis: [],
+        trips: [],
+        theme: "dark",
+        syncEnabled: true,
+        updatedAt: resetAt,
+        lastSyncedAt: resetAt,
+        syncStatus: "idle",
+        syncUserEmail: "",
+        syncDriveFileId: "",
+        googleClientId: "",
+        hideCloudPrompt: false,
+        deviceId: createSyncId("trex_device"),
+        syncEpoch: marker.syncEpoch || createSyncId("trex_epoch"),
+        syncResetLineage: lineage,
+        syncResetHistory: Array.from(new Set([
+            ...(Array.isArray(marker.syncResetHistory) ? marker.syncResetHistory : []),
+            lineage.previousEpoch || ""
+        ])).filter(Boolean),
+        pendingCloudResetEpoch: "",
+        biometricEnabled: false,
+        biometricCredentialId: "",
+        biometricUserId: "",
+        biometricLabel: "",
+        biometricRegisteredAt: ""
+    };
+}
+
 // Initialize GIS as soon as the SDK script finishes loading.
 // The GIS script tag uses async defer, so this callback fires once it's ready.
 window._trexGISReady = function () {
@@ -324,7 +372,7 @@ async function pushToDrive() {
  * - Budget discrepancy → scoped minimalist confirmation modal only
  * - localTime > remoteTime → push local up
  */
-async function syncFromDrive() {
+async function syncFromDrive(forceInteractiveAuth = false) {
     if (!state.syncEnabled) {
         updateSyncStatus("offline");
         return;
@@ -345,7 +393,13 @@ async function syncFromDrive() {
     }
     updateSyncStatus("syncing");
     try {
-        const token = await getValidToken(false);
+        let token;
+        try {
+            token = await getValidToken(false);
+        } catch (authError) {
+            if (!forceInteractiveAuth) throw authError;
+            token = await getValidToken(true);
+        }
         const fileId = await findSyncFileId(token);
 
         if (!fileId) {
@@ -701,7 +755,15 @@ function pauseSyncForReset(epoch) {
     updateSyncStatus("offline", "Reset pending");
 }
 
-function resetLocalDeviceNow() {
+async function resetLocalDeviceNow(marker, token, fileId) {
+    try {
+        if (marker && token && fileId) {
+            const freshState = buildFreshStateAfterReset(marker);
+            await updateSyncFile(token, fileId, JSON.stringify(freshState));
+        }
+    } catch (e) {
+        console.error("resetLocalDeviceNow marker resolution failed:", e);
+    }
     accessToken = null;
     tokenExpiry = 0;
     localStorage.removeItem("androidWalletState_v4");
@@ -748,9 +810,9 @@ function showCloudResetMarkerModal(marker, token, fileId) {
         document.body.appendChild(div);
         if (typeof initLucideIcons === "function") initLucideIcons(div);
 
-        document.getElementById("btnResetThisDevice").onclick = () => {
+        document.getElementById("btnResetThisDevice").onclick = async () => {
             div.remove();
-            resetLocalDeviceNow();
+            await resetLocalDeviceNow(marker, token, fileId);
             resolve("reset");
         };
         document.getElementById("btnMakeLocalMain").onclick = async () => {
@@ -1287,7 +1349,7 @@ function disconnectGoogleSync() {
 async function triggerManualSync() {
     if (!state.syncEnabled) return;
     showNotification("Sync started...");
-    await syncFromDrive();
+    await syncFromDrive(true);
     renderSyncControls();
 }
 

@@ -5,10 +5,18 @@
 | # | Workstream | Status | Notes |
 |---|---|---|---|
 | 1 | Move reset controls to standalone final Settings panel | Complete | Moved reset panel out of Cloud Sync and placed at the absolute end of Settings |
-| 2 | Properly enable biometric unlock | In progress | Use WebAuthn/passkeys on hosted origin; PIN remains fallback |
-| 3 | Properly enable reminders | Pending | Use Notification API/service worker where possible; document browser/PWA limits |
-| 4 | Add locked-screen quick expense | Pending | Add-only form with existing category/payment selectors; no add-new controls |
-| 5 | Route locked quick expenses to active trips | Pending | During active trip days, save locked quick expense into trip flow; normal expense still requires login |
+| 2 | Properly enable biometric unlock | Complete | WebAuthn/passkeys on hosted origin; PIN remains fallback |
+| 3 | Properly enable reminders | Complete | Service worker-backed browser notifications where possible; missed reminder check on app open; browser/PWA limits still apply |
+| 4 | Add locked-screen quick expense | Complete | Add-only form with existing category/payment selectors; no add-new controls |
+| 5 | Route locked quick expenses to active trips | Complete | During active trip days, locked quick expense saves to trip; normal expense requires unlocking |
+
+### Reset Marker Regression Fix - May 30, 2026
+
+| # | Issue | Status | Files |
+|---|---|---|---|
+| 1 | Mobile manual sync could fail before reading reset marker if silent Google auth needed interaction | Fixed | `js/sync.js` |
+| 2 | Choosing Reset This Device Too cleared local data but left the cloud reset marker behind, causing repeated reset prompts | Fixed | `js/sync.js` |
+| 3 | Verify reset marker resolution and manual sync auth fallback | Complete | `node --check js/sync.js`; browser regression confirmed Reset This Device Too uploads fresh non-marker state before local wipe |
 
 ### Phase 9 Point 1 Checklist
 
@@ -28,7 +36,37 @@
 | 3 | Add Settings toggle/status for biometric unlock | Complete | `index.html`, `js/core.js` |
 | 4 | Replace simulated biometric unlock with WebAuthn registration/authentication | Complete | `js/auth.js` |
 | 5 | Preserve biometric metadata as device-local during cloud sync apply | Complete | `js/sync.js` |
-| 6 | Verify syntax and browser UI smoke path | In progress | local check |
+| 6 | Verify syntax and browser UI smoke path | Complete | `node --check` for auth/core/sync; browser smoke verified Settings toggle and lock-screen biometric button states |
+
+### Phase 9 Point 3 Checklist
+
+| # | Task | Status | Files |
+|---|---|---|---|
+| 1 | Inspect current reminder and notification flow | Complete | `js/dashboard.js`, `index.html`, `manifest.json` |
+| 2 | Add reminder state defaults and service worker registration | Complete | `js/core.js`, `sw.js` |
+| 3 | Upgrade reminder notification delivery and missed-reminder check | Complete | `js/dashboard.js` |
+| 4 | Add hosted-web reminder UI affordances | Complete | `index.html` |
+| 5 | Verify syntax and browser smoke path | Complete | `node --check` for dashboard/core/sw; browser smoke confirmed SW control, Settings controls, reminder helpers |
+
+### Phase 9 Point 4 Checklist
+
+| # | Task | Status | Files |
+|---|---|---|---|
+| 1 | Inspect normal expense and trip expense save paths | Complete | `js/transactions.js`, `js/goals-trips.js` |
+| 2 | Add add-only quick expense form to lock screen | Complete | `index.html` |
+| 3 | Populate locked form with existing categories/payments only | Complete | `js/auth.js` |
+| 4 | Save locked quick expense without exposing edit/add category/payment controls | Complete | `js/auth.js` |
+| 5 | Verify syntax and browser smoke path | Complete | `node --check js/auth.js`; browser smoke verified locked form population and add-only transaction save |
+
+### Phase 9 Point 5 Checklist
+
+| # | Task | Status | Files |
+|---|---|---|---|
+| 1 | Reuse active trip detection for lock-screen quick expense | Complete | `js/auth.js`, `js/goals-trips.js` |
+| 2 | Save locked quick expense as on-trip expense during active trip days | Complete | `js/auth.js` |
+| 3 | Block normal locked quick expense when no active trip exists | Complete | `js/auth.js` |
+| 4 | Update project documentation for Phase 9 features | In progress | `README.md`, `ARCHITECTURE.md`, `FUNCTIONS.md`, `CHANGELOG.md`, `working.md` |
+| 5 | Verify syntax and browser smoke path | Pending | local check |
 
 ---
 

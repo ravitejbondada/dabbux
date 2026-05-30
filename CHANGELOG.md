@@ -5,6 +5,21 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
+## [v3.4] 2026-05-30 - Hosted web app enablement
+
+**What changed:** Enabled hosted-web security and reminder features, added lock-screen active-trip quick expense, moved reset controls to the final Settings panel, and fixed reset-marker follow-up behavior.
+
+**Files modified:**
+- `index.html` - moved reset panel to the bottom of Settings; added biometric Settings toggle/status, reminder test notification button, and locked quick expense form.
+- `js/auth.js` - replaced simulated biometrics with WebAuthn/passkey unlock; added locked quick expense form population and active-trip-only save behavior.
+- `js/core.js` - added biometric/reminder state defaults and service worker registration.
+- `js/dashboard.js` - upgraded reminders with service-worker notification delivery, missed-reminder checks, and test notification support.
+- `js/sync.js` - preserves local biometric metadata during remote apply; resolves cloud reset markers to a fresh post-reset cloud state when another device chooses Reset This Device Too.
+- `sw.js` - added service worker notification click handling.
+- `README.md`, `ARCHITECTURE.md`, `FUNCTIONS.md`, `working.md` - documented Phase 9 behavior.
+
+**Behavior:** Biometric unlock is device-local WebAuthn with PIN fallback. Daily reminders are browser/PWA notifications with a missed-reminder check on app open. Locked quick expense saves only to active trips; normal expenses require unlocking.
+
 ## [v3.3] 2026-05-30 - Full reset control
 
 **What changed:** Added a dedicated Settings Danger Zone for destructive reset actions and cross-device reset handling.

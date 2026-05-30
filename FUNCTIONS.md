@@ -1,6 +1,6 @@
-# TReX - Function Index
+﻿# TReX - Function Index
 
-Searchable reference of all 252 functions. Format: `functionName` — what it does.
+Searchable reference of app functions. Format: `functionName` — what it does.
 
 To find where to add/edit something, scan the relevant section header then go to that file.
 
@@ -21,12 +21,13 @@ To find where to add/edit something, scan the relevant section header then go to
 | `applyTheme(theme)` | Sets `data-theme` attribute on `<html>` for light/dark CSS switching |
 | `toggleThemeSetting()` | Reads the theme toggle checkbox and calls `applyTheme()` + saves state |
 | `switchScreen(viewName)` | Main router — hides all view panels, shows target, updates nav tabs, calls init render |
+| `registerTrexServiceWorker()` | Registers `sw.js` on secure origins/localhost for PWA notification handling |
 | `checkAndShowOnboardingModal()` | Called from `window.onload`; delegates to `sync.js` to show the Drive onboarding prompt if sync is disabled and not yet seen this session |
 | `updateHeaderSyncIcon()` | *(defined in sync.js, called from core.js boot)* Updates the `#headerSyncBtn` icon and click binding in the app header based on `state.syncStatus` |
 
 ---
 
-## auth.js — PIN & App Lock (12 functions)
+## auth.js — PIN, Biometrics & App Lock
 
 | Function | Description |
 |---|---|
@@ -34,12 +35,27 @@ To find where to add/edit something, scan the relevant section header then go to
 | `showPinChangeSuccess()` | Shows the PIN change success modal with animation |
 | `isAppLocked()` | Returns true if `pinEnabled` and lock screen is visible |
 | `updateAppLockButton()` | Syncs the header lock icon button appearance to current lock state |
+| `biometricBufferToBase64Url(buffer)` | Encodes WebAuthn ArrayBuffer credential ids for localStorage |
+| `biometricBase64UrlToBuffer(value)` | Decodes stored credential ids back to ArrayBuffer |
+| `createBiometricChallenge()` | Creates a random WebAuthn challenge |
+| `createBiometricUserId()` | Creates a random local WebAuthn user id |
+| `isBiometricApiAvailable()` | Checks secure-context WebAuthn API availability |
+| `isBiometricUnlockSupported()` | Checks platform authenticator availability |
+| `syncBiometricSettingsUI()` | Syncs biometric Settings toggle/status and lock button state |
+| `syncBiometricLockUI()` | Enables/disables the lock-screen biometric button |
+| `populateLockedQuickExpenseForm()` | Populates the locked quick expense form from existing categories/payments |
+| `applyLockedCategoryDefaultPayment()` | Applies category default payment inside the locked quick expense form |
+| `clearLockedQuickExpenseForm()` | Clears amount/note fields in the locked quick expense form |
+| `submitLockedQuickExpense(event)` | Adds an on-trip expense during active trip days; blocks normal locked expense logging |
 | `lockApp()` | Shows the lock screen overlay and clears the PIN input buffer |
 | `unlockApp()` | Hides the lock screen after successful PIN entry |
+| `clearBiometricState()` | Clears local WebAuthn credential metadata |
 | `togglePinSetting()` | Enables/disables PIN lock from the settings checkbox |
+| `registerBiometricCredential()` | Registers a platform WebAuthn credential for this device |
+| `toggleBiometricSetting()` | Enables/disables biometric unlock from Settings |
 | `pressPin(char)` | Handles a numeric keypad press; auto-submits on 4 digits |
 | `clearPin()` | Backspace — removes the last digit from the PIN input buffer |
-| `simulateBiometrics()` | Simulates biometric unlock (bypasses PIN for demo/dev) |
+| `simulateBiometrics()` | Runs WebAuthn biometric/passkey unlock; PIN remains fallback |
 | `updatePinVisualDots()` | Updates the 4 dot indicators based on current `pinAttemptBuffer` length |
 | `changePin()` | Validates old PIN, sets new PIN from settings form, saves state |
 
@@ -68,7 +84,14 @@ To find where to add/edit something, scan the relevant section header then go to
 | `checkBudgetAlerts(metrics)` | Triggers a browser notification if spending exceeds alert threshold |
 | `toggleDailyReminderSetting()` | Enables/disables daily reminder, requests notification permission |
 | `saveDailyReminderTime()` | Saves reminder time from settings form |
-| `scheduleDailyReminder()` | Schedules a `setTimeout`-based daily notification |
+| `getTodayLocalISO()` | Returns today's local ISO date string |
+| `getReminderFireDate(reference?)` | Returns the next daily reminder fire time |
+| `getDailyReminderBody()` | Builds the daily reminder notification body |
+| `showTrexBrowserNotification(title, body)` | Sends a service-worker notification when possible, otherwise falls back to `new Notification` |
+| `markDailyReminderShown()` | Records today's reminder as shown |
+| `scheduleDailyReminder()` | Schedules the next in-browser daily reminder while the app/browser is active |
+| `checkMissedDailyReminder()` | Sends a missed reminder when the app opens after the configured time |
+| `sendTestReminderNotification()` | Sends a test browser notification from Settings |
 | `requestNotificationPermission(callback)` | Requests browser notification permission, calls callback on grant |
 | `syncNotificationSettings()` | Syncs all notification UI toggles from state on load |
 | `triggerQuickLog(amount, categoryId, note, paymentId)` | Instantly adds a transaction from a quick log tap |
@@ -398,5 +421,6 @@ To find where to add/edit something, scan the relevant section header then go to
 | `renderResetDangerZone()` | Renders the dedicated destructive reset section; disables cloud-only reset when Drive is disconnected and keeps full local reset visible |
 | `showCloudResetMarkerModal()` | Blocks sync when cloud only contains a reset marker; offers Reset This Device Too, Make This Device Main, or Decide Later |
 | `showResetBoundaryConflictModal()` | Blocks stale-device sync across reset epochs; offers Force Cloud, Force Local, Force Merge, or Keep Sync Paused |
+| `buildFreshStateAfterReset()` | Builds a fresh empty post-reset cloud state when a device accepts Reset This Device Too |
 | `resetAllData()` | Replaces `trex_sync_v4.json` with a reset marker when possible, clears local app data, clears onboarding session state, and reloads to a fresh default state |
 | `resetSyncData()` | Replaces `trex_sync_v4.json` with a reset marker and resets local sync state; local app data is preserved |

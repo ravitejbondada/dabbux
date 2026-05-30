@@ -63,6 +63,10 @@ let state = {
     syncDriveFileId: "",
     googleClientId: "",
     hideCloudPrompt: false,
+    budgetAlertsEnabled: false,
+    dailyReminderEnabled: false,
+    dailyReminderTime: "21:00",
+    dailyReminderLastShownDate: "",
     biometricEnabled: false,
     biometricCredentialId: "",
     biometricUserId: "",
@@ -135,6 +139,10 @@ window.onload = function () {
     if (state.syncUserEmail === undefined) state.syncUserEmail = "";
     if (state.syncDriveFileId === undefined) state.syncDriveFileId = "";
     if (state.hideCloudPrompt === undefined) state.hideCloudPrompt = false;
+    if (state.budgetAlertsEnabled === undefined) state.budgetAlertsEnabled = false;
+    if (state.dailyReminderEnabled === undefined) state.dailyReminderEnabled = false;
+    if (!state.dailyReminderTime) state.dailyReminderTime = "21:00";
+    if (state.dailyReminderLastShownDate === undefined) state.dailyReminderLastShownDate = "";
     if (state.biometricEnabled === undefined) state.biometricEnabled = false;
     if (state.biometricCredentialId === undefined) state.biometricCredentialId = "";
     if (state.biometricUserId === undefined) state.biometricUserId = "";
@@ -180,8 +188,10 @@ window.onload = function () {
     processEMIs();
     updateAppDashboardView();
     renderQuickLogButtons();
+    registerTrexServiceWorker();
     syncNotificationSettings();
-    if (state.dailyReminderEnabled && Notification.permission === "granted") {
+    if (state.dailyReminderEnabled && typeof Notification !== "undefined" && Notification.permission === "granted") {
+        checkMissedDailyReminder();
         scheduleDailyReminder();
     }
     try { renderNewTripEmojiPicker(); } catch (e) { }
@@ -202,6 +212,13 @@ window.onload = function () {
         syncBiometricSettingsUI();
     }
 };
+
+function registerTrexServiceWorker() {
+    if (!("serviceWorker" in navigator)) return;
+    if (!window.isSecureContext) return;
+    navigator.serviceWorker.register("sw.js")
+        .catch(err => console.warn("TReX service worker registration failed:", err));
+}
 
 /* ── SELECT WRAPPER — forces app theme on all dropdowns ────────────────
    Wraps every <select class="app-dropdown"> found in the document

@@ -1,6 +1,6 @@
-/**
- * dashboard.js — Dashboard & Budget Widgets
- * TReX � Devour Your Expenses
+﻿/**
+ * dashboard.js â€” Dashboard & Budget Widgets
+ * TReX — Devour Your Expenses
  *
  * Budget cycle calculations, dashboard view renderer, forecast card,
  * spend heatmap, quick log system, budget alerts, daily reminders,
@@ -92,7 +92,7 @@ function formatDateTime(dateObj) {
     const mm = String(dateObj.getMinutes()).padStart(2, "0");
     const ampm = hh >= 12 ? "PM" : "AM";
     const h12 = hh % 12 || 12;
-    return `${d} ${m}, ${yy} · ${h12}:${mm} ${ampm}`;
+    return `${d} ${m}, ${yy} Â· ${h12}:${mm} ${ampm}`;
 }
 
 /* UPDATE DOM DASHBOARD VIEW */
@@ -102,21 +102,21 @@ function updateAppDashboardView() {
     const symbol = state.currencySymbol;
 
     document.getElementById("currentCycleLabel").textContent = `${formatDateReadable(metrics.startDate)} - ${formatDateReadable(metrics.endDate)}`;
-    document.getElementById("activeBudgetSubTitle").textContent = `${state.cycleType === 'salary' ? 'PAYDAY CYCLE' : 'MONTHLY CYCLE'} · BUDGET RESET`;
+    document.getElementById("activeBudgetSubTitle").textContent = `${state.cycleType === 'salary' ? 'PAYDAY CYCLE' : 'MONTHLY CYCLE'} Â· BUDGET RESET`;
 
     const noBudget = !state.monthlyBudget || state.monthlyBudget === 0;
 
     if (noBudget) {
         document.getElementById("budgetTotalDisplay").textContent = `Set budget`;
         document.getElementById("budgetRemainingDisplay").innerHTML =
-            `<span class="text-indigo-400 text-xs font-bold cursor-pointer underline underline-offset-2" onclick="switchScreen('settings')">Tap to set your budget →</span>`;
+            `<span class="text-indigo-400 text-xs font-bold cursor-pointer underline underline-offset-2" onclick="switchScreen('settings')">Tap to set your budget â†’</span>`;
         document.getElementById("budgetProgressBar").style.width = "0%";
         document.getElementById("budgetProgressBar").className = "bg-slate-700 h-full rounded-full transition-all duration-700";
         const emojiEl = document.getElementById("budgetHealthEmoji");
-        if (emojiEl) emojiEl.textContent = "🎯";
+        if (emojiEl) emojiEl.textContent = "ðŸŽ¯";
         const overAlert = document.getElementById("overBudgetAlert");
         if (overAlert) { overAlert.classList.add("hidden"); overAlert.classList.remove("flex"); }
-        document.getElementById("safeToSpendDisplay").textContent = `— / day`;
+        document.getElementById("safeToSpendDisplay").textContent = `â€” / day`;
     } else {
         document.getElementById("budgetTotalDisplay").textContent = `${symbol}${state.monthlyBudget.toLocaleString()}`;
         document.getElementById("budgetRemainingDisplay").textContent = `${symbol}${metrics.remainingBudget.toLocaleString()}`;
@@ -140,12 +140,12 @@ function updateAppDashboardView() {
         // Health emoji
         const emojiEl = document.getElementById("budgetHealthEmoji");
         if (emojiEl) {
-            let emoji = "😄";
-            if (rawPercent >= 100) emoji = "😱";
-            else if (rawPercent >= 85) emoji = "😰";
-            else if (rawPercent >= 70) emoji = "😟";
-            else if (rawPercent >= 50) emoji = "😐";
-            else if (rawPercent >= 25) emoji = "🙂";
+            let emoji = "ðŸ˜„";
+            if (rawPercent >= 100) emoji = "ðŸ˜±";
+            else if (rawPercent >= 85) emoji = "ðŸ˜°";
+            else if (rawPercent >= 70) emoji = "ðŸ˜Ÿ";
+            else if (rawPercent >= 50) emoji = "ðŸ˜";
+            else if (rawPercent >= 25) emoji = "ðŸ™‚";
             emojiEl.textContent = emoji;
         }
 
@@ -184,7 +184,7 @@ function updateAppDashboardView() {
     renderSpendHeatmap();
 }
 
-/* ── FORECAST CARD (Feature 5) ───────────────────────────────────── */
+/* â”€â”€ FORECAST CARD (Feature 5) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function renderForecastCard(metrics) {
     const card = document.getElementById("forecastCard");
     const sym = state.currencySymbol;
@@ -235,7 +235,7 @@ function renderForecastCard(metrics) {
             icon: "bg-emerald-600/15 border-emerald-500/25 text-emerald-400",
             lucide: "shield-check",
             title: "text-emerald-300",
-            titleTxt: "On Track — Cycle Looking Good",
+            titleTxt: "On Track â€” Cycle Looking Good",
             bar: "bg-gradient-to-r from-emerald-500 to-teal-400",
         },
     };
@@ -265,16 +265,16 @@ function renderForecastCard(metrics) {
     if (isOverrun) {
         narrativeEl.innerHTML = `At current pace, you'll exceed your budget by <strong class="text-rose-400">${sym}${Math.abs(gap).toLocaleString()}</strong> with ${metrics.daysRemaining} days left. Cut daily spend to <strong class="text-white">${sym}${Math.round(metrics.safeToSpend).toLocaleString()}/day</strong> to break even.`;
     } else if (isWarning) {
-        narrativeEl.innerHTML = `You're projected to finish at <strong class="text-amber-300">${sym}${projected.toLocaleString()}</strong> — close to your limit. Keep daily spend under <strong class="text-white">${sym}${Math.round(metrics.safeToSpend).toLocaleString()}/day</strong> to stay safe.`;
+        narrativeEl.innerHTML = `You're projected to finish at <strong class="text-amber-300">${sym}${projected.toLocaleString()}</strong> â€” close to your limit. Keep daily spend under <strong class="text-white">${sym}${Math.round(metrics.safeToSpend).toLocaleString()}/day</strong> to stay safe.`;
     } else {
         narrativeEl.innerHTML = `Looking great! Projected to finish with a surplus of <strong class="text-emerald-400">${sym}${Math.abs(gap).toLocaleString()}</strong>. Current allowance is <strong class="text-white">${sym}${Math.round(metrics.safeToSpend).toLocaleString()}/day</strong>.`;
     }
 
     initLucideIcons(card);
 }
-/* ── END FORECAST CARD ───────────────────────────────────────────── */
+/* â”€â”€ END FORECAST CARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── SPEND HEATMAP CALENDAR (Feature 4) ─────────────────────────── */
+/* â”€â”€ SPEND HEATMAP CALENDAR (Feature 4) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function renderSpendHeatmap() {
     const grid = document.getElementById("spendHeatmapGrid");
     const tooltip = document.getElementById("heatmapTooltip");
@@ -344,29 +344,29 @@ function renderSpendHeatmap() {
             if (isFuture) { tooltip.textContent = ""; return; }
             const dateStr = formatDateReadable(new Date(year, month, d), { weekday: true });
             tooltip.textContent = spend > 0
-                ? `${dateStr} — ${sym}${spend.toLocaleString()} spent`
-                : `${dateStr} — No spend logged`;
+                ? `${dateStr} â€” ${sym}${spend.toLocaleString()} spent`
+                : `${dateStr} â€” No spend logged`;
         });
         cell.addEventListener("mouseleave", () => { tooltip.textContent = ""; });
 
-        // Tap → open Ledger filtered to this exact date
+        // Tap â†’ open Ledger filtered to this exact date
         cell.addEventListener("click", () => {
             if (isFuture) return;
             const pad = n => String(n).padStart(2, "0");
             const dateISO = `${year}-${pad(month + 1)}-${pad(d)}`;
             const dateStr = formatDateReadable(new Date(year, month, d), { weekday: true });
             tooltip.textContent = spend > 0
-                ? `${dateStr} — ${sym}${spend.toLocaleString()} spent`
-                : `${dateStr} — No spend logged`;
+                ? `${dateStr} â€” ${sym}${spend.toLocaleString()} spent`
+                : `${dateStr} â€” No spend logged`;
             openLedgerWithDate(dateISO);
         });
 
         grid.appendChild(cell);
     }
 }
-/* ── END SPEND HEATMAP ───────────────────────────────────────────── */
+/* â”€â”€ END SPEND HEATMAP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* ── FEATURE 6: CUSTOMIZABLE QUICK-LOG BUTTONS ──────────────────── */
+/* â”€â”€ FEATURE 6: CUSTOMIZABLE QUICK-LOG BUTTONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const DEFAULT_QUICK_LOGS = [];
 
@@ -384,14 +384,14 @@ function renderQuickLogButtons() {
         return;
     }
     grid.innerHTML = logs.map(q => {
-        const cat = state.categories.find(c => c.id === q.categoryId) || { name: "—", color: "#6366f1" };
-        const pay = state.payments.find(p => p.id === q.paymentId) || { name: "—" };
+        const cat = state.categories.find(c => c.id === q.categoryId) || { name: "â€”", color: "#6366f1" };
+        const pay = state.payments.find(p => p.id === q.paymentId) || { name: "â€”" };
         return `
         <button onclick="triggerQuickLog(${q.amount}, '${q.categoryId}', '${q.label}', '${q.paymentId}')"
             class="bg-slate-950 hover:bg-slate-900 p-3 border border-slate-850 rounded-xl text-left flex justify-between items-center transition-all active:scale-95 gap-2">
             <div class="min-w-0 flex flex-col gap-0.5">
                 <span class="text-[11px] text-slate-200 font-bold truncate">${q.label}</span>
-                <span class="text-[8px] font-semibold uppercase" style="color:${cat.color}">${cat.name} · ${pay.name}</span>
+                <span class="text-[8px] font-semibold uppercase" style="color:${cat.color}">${cat.name} Â· ${pay.name}</span>
             </div>
             <span class="text-sm font-black text-indigo-400 shrink-0">${state.currencySymbol}${parseFloat(q.amount).toLocaleString()}</span>
         </button>`;
@@ -483,7 +483,7 @@ function closeQuickLogEditor() {
     document.getElementById("quickLogEditorModal").classList.add("hidden");
 }
 
-/* ── FEATURE 13: BUDGET SPEND ALERTS ────────────────────────────── */
+/* â”€â”€ FEATURE 13: BUDGET SPEND ALERTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const ALERT_THRESHOLDS = [50, 75, 90];
 
@@ -509,7 +509,7 @@ function checkBudgetAlerts(metrics) {
         const key = `${threshold}_${new Date().getMonth()}_${new Date().getFullYear()}`;
         if (pct >= threshold && !fired.includes(key)) {
             fired.push(key);
-            new Notification("TReX — Budget Alert 🔔", {
+            new Notification("TReX â€” Budget Alert ðŸ””", {
                 body: `You've used ${threshold}% of your monthly budget (${state.currencySymbol}${metrics.totalSpent.toLocaleString()} of ${state.currencySymbol}${state.monthlyBudget.toLocaleString()}).`,
                 icon: document.getElementById("dynamicAppleIcon")?.href || ""
             });
@@ -520,9 +520,56 @@ function checkBudgetAlerts(metrics) {
     saveStateToLocalStorage();
 }
 
-/* ── FEATURE 14: DAILY EXPENSE REMINDER ─────────────────────────── */
+/* â”€â”€ FEATURE 14: DAILY EXPENSE REMINDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 let _reminderTimer = null;
+
+function getTodayLocalISO() {
+    return new Date().toISOString().split("T")[0];
+}
+
+function getReminderFireDate(reference = new Date()) {
+    const timeStr = state.dailyReminderTime || "21:00";
+    const [hh, mm] = timeStr.split(":").map(Number);
+    const fire = new Date(reference);
+    fire.setHours(Number.isFinite(hh) ? hh : 21, Number.isFinite(mm) ? mm : 0, 0, 0);
+    if (fire <= reference) fire.setDate(fire.getDate() + 1);
+    return fire;
+}
+
+function getDailyReminderBody() {
+    const today = getTodayLocalISO();
+    const todayTxCount = (state.transactions || []).filter(t => t.date === today).length;
+    return todayTxCount > 0
+        ? `You've logged ${todayTxCount} expense${todayTxCount > 1 ? "s" : ""} today. Tap to review and make sure nothing is missing.`
+        : "No expenses logged today yet. Open TReX to record and review your spending.";
+}
+
+async function showTrexBrowserNotification(title, body) {
+    if (!("Notification" in window) || Notification.permission !== "granted") return false;
+    const icon = document.querySelector('link[rel="apple-touch-icon"]')?.href || "assets/favicon.png";
+    const options = { body, icon, badge: icon, tag: "trex-daily-reminder", renotify: true };
+
+    try {
+        if (navigator.serviceWorker) {
+            const registration = await navigator.serviceWorker.ready;
+            if (registration && registration.showNotification) {
+                await registration.showNotification(title, options);
+                return true;
+            }
+        }
+    } catch (e) {
+        console.warn("Service worker notification fallback:", e);
+    }
+
+    new Notification(title, options);
+    return true;
+}
+
+function markDailyReminderShown() {
+    state.dailyReminderLastShownDate = getTodayLocalISO();
+    saveStateToLocalStorage();
+}
 
 function toggleDailyReminderSetting() {
     state.dailyReminderEnabled = document.getElementById("settingDailyReminder").checked;
@@ -533,6 +580,7 @@ function toggleDailyReminderSetting() {
         timeRow.style.display = "flex";
         statusEl.style.display = "block";
         requestNotificationPermission(() => {
+            checkMissedDailyReminder();
             scheduleDailyReminder();
             showNotification("Daily reminder enabled.");
         });
@@ -542,46 +590,60 @@ function toggleDailyReminderSetting() {
         clearTimeout(_reminderTimer);
         showNotification("Daily reminder disabled.");
     }
+    syncNotificationSettings();
 }
 
 function saveDailyReminderTime() {
-    state.dailyReminderTime = document.getElementById("settingReminderTime").value;
+    state.dailyReminderTime = document.getElementById("settingReminderTime").value || "21:00";
     saveStateToLocalStorage();
+    checkMissedDailyReminder();
     scheduleDailyReminder();
+    syncNotificationSettings();
 }
 
 function scheduleDailyReminder() {
     clearTimeout(_reminderTimer);
     if (!state.dailyReminderEnabled) return;
-    if (Notification.permission !== "granted") return;
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
 
-    const timeStr = state.dailyReminderTime || "21:00";
-    const [hh, mm] = timeStr.split(":").map(Number);
-    const now = new Date();
-    const fire = new Date();
-    fire.setHours(hh, mm, 0, 0);
-    if (fire <= now) fire.setDate(fire.getDate() + 1); // schedule for tomorrow if already passed
-
-    const msUntil = fire - now;
+    const fire = getReminderFireDate();
+    const msUntil = Math.max(1000, fire - new Date());
 
     const statusEl = document.getElementById("reminderStatusText");
     if (statusEl) {
-        statusEl.textContent = `Next reminder: ${formatDateReadable(fire, { weekday: true })} at ${fire.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+        const swNote = navigator.serviceWorker ? " PWA notifications active while browser allows them." : " Browser must stay open for scheduled reminders.";
+        statusEl.textContent = `Next reminder: ${formatDateReadable(fire, { weekday: true })} at ${fire.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}.${swNote}`;
         statusEl.classList.remove("hidden");
     }
 
-    _reminderTimer = setTimeout(() => {
-        const today = new Date().toISOString().split("T")[0];
-        const todayTxCount = state.transactions.filter(t => t.date === today).length;
-        new Notification("TReX — Daily Review 📋", {
-            body: todayTxCount > 0
-                ? `You've logged ${todayTxCount} expense${todayTxCount > 1 ? 's' : ''} today. Tap to review and make sure nothing's missing!`
-                : `No expenses logged today yet. Open TReX to record and review your day's spending.`,
-            icon: document.getElementById("dynamicAppleIcon")?.href || ""
-        });
-        // Re-schedule for the next day
+    _reminderTimer = setTimeout(async () => {
+        const shown = await showTrexBrowserNotification("TReX - Daily Review", getDailyReminderBody());
+        if (shown) markDailyReminderShown();
         scheduleDailyReminder();
     }, msUntil);
+}
+
+function checkMissedDailyReminder() {
+    if (!state.dailyReminderEnabled) return;
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    const today = getTodayLocalISO();
+    if (state.dailyReminderLastShownDate === today) return;
+
+    const timeStr = state.dailyReminderTime || "21:00";
+    const [hh, mm] = timeStr.split(":").map(Number);
+    const due = new Date();
+    due.setHours(Number.isFinite(hh) ? hh : 21, Number.isFinite(mm) ? mm : 0, 0, 0);
+    if (new Date() < due) return;
+
+    showTrexBrowserNotification("TReX - Missed Daily Review", getDailyReminderBody())
+        .then(shown => { if (shown) markDailyReminderShown(); });
+}
+
+function sendTestReminderNotification() {
+    requestNotificationPermission(async () => {
+        const shown = await showTrexBrowserNotification("TReX - Test Reminder", "Notifications are working for this browser and device.");
+        showNotification(shown ? "Test notification sent." : "Unable to send test notification.");
+    });
 }
 
 function requestNotificationPermission(callback) {
@@ -593,10 +655,12 @@ function requestNotificationPermission(callback) {
         const btn = document.getElementById("notifPermissionBtn");
         if (btn) btn.style.display = "none";
         if (callback) callback();
+        syncNotificationSettings();
         return;
     }
     if (Notification.permission === "denied") {
-        showNotification("Notifications blocked — please enable in browser settings.");
+        showNotification("Notifications blocked. Enable them in browser settings.");
+        syncNotificationSettings();
         return;
     }
     Notification.requestPermission().then(perm => {
@@ -606,12 +670,15 @@ function requestNotificationPermission(callback) {
             if (callback) callback();
         } else {
             showNotification("Notification permission denied.");
-            document.getElementById("settingBudgetAlerts").checked = false;
-            document.getElementById("settingDailyReminder").checked = false;
+            const budget = document.getElementById("settingBudgetAlerts");
+            const reminder = document.getElementById("settingDailyReminder");
+            if (budget) budget.checked = false;
+            if (reminder) reminder.checked = false;
             state.budgetAlertsEnabled = false;
             state.dailyReminderEnabled = false;
             saveStateToLocalStorage();
         }
+        syncNotificationSettings();
     });
 }
 
@@ -622,21 +689,27 @@ function syncNotificationSettings() {
     const timeInput = document.getElementById("settingReminderTime");
     const statusEl = document.getElementById("reminderStatusText");
     const permBtn = document.getElementById("notifPermissionBtn");
+    const testBtn = document.getElementById("testReminderBtn");
 
     if (budgetEl) budgetEl.checked = !!state.budgetAlertsEnabled;
     if (reminderEl) reminderEl.checked = !!state.dailyReminderEnabled;
-    if (timeInput && state.dailyReminderTime) timeInput.value = state.dailyReminderTime;
+    if (timeInput) timeInput.value = state.dailyReminderTime || "21:00";
 
     if (timeRow) timeRow.style.display = state.dailyReminderEnabled ? "flex" : "none";
-    if (statusEl) statusEl.style.display = state.dailyReminderEnabled ? "block" : "none";
+    if (statusEl) {
+        statusEl.style.display = state.dailyReminderEnabled ? "block" : "none";
+        if (state.dailyReminderEnabled && (!("Notification" in window) || Notification.permission !== "granted")) {
+            statusEl.textContent = "Grant notification permission to activate reminders on this device.";
+        }
+    }
 
     const needsPerm = (state.budgetAlertsEnabled || state.dailyReminderEnabled)
         && typeof Notification !== "undefined"
         && Notification.permission !== "granted";
     if (permBtn) permBtn.style.display = needsPerm ? "flex" : "none";
+    if (testBtn) testBtn.style.display = (typeof Notification !== "undefined" && Notification.permission === "granted") ? "flex" : "none";
 }
-
-/* ── END NOTIFICATION FEATURES ───────────────────────────────────── */
+/* â”€â”€ END NOTIFICATION FEATURES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* 1-TAP INSTANT ADD TRANSACTIONS */
 function triggerQuickLog(amount, categoryId, note, paymentId) {
