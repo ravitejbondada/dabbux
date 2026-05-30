@@ -166,7 +166,10 @@ window.onload = function () {
     }
     try { renderNewTripEmojiPicker(); } catch (e) { }
     if (state.syncEnabled && typeof syncFromDrive === "function") {
+        // syncFromDrive internally guards for GIS readiness; _dabbuxGISReady will re-trigger it if SDK not ready yet
         syncFromDrive();
+    } else if (typeof updateSyncStatus === "function") {
+        updateSyncStatus("offline");
     }
     if (typeof checkAndShowOnboardingModal === "function") {
         checkAndShowOnboardingModal();

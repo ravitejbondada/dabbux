@@ -16,13 +16,22 @@ let tokenExpiry = 0;
 // Default client ID can be overridden via state.googleClientId in UI
 const DEFAULT_CLIENT_ID = "219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.apps.googleusercontent.com";
 
+// Initialize GIS as soon as the SDK script finishes loading.
+// The GIS script tag uses async defer, so this callback fires once it's ready.
+window._dabbuxGISReady = function () {
+    initGoogleAuth(false);
+    // If sync was already enabled (returning user), kick off a sync now that auth is ready
+    if (state && state.syncEnabled) {
+        syncFromDrive();
+    }
+};
+
 /**
  * Initialize Google Identity Services token client
  */
 function initGoogleAuth(forceInteractive = false) {
     if (typeof google === "undefined" || !google.accounts || !google.accounts.oauth2) {
-        console.warn("Google GIS SDK not loaded yet.");
-        updateSyncStatus("error", "SDK loading");
+        console.warn("Google GIS SDK not loaded yet — will retry when ready.");
         return;
     }
 
@@ -236,7 +245,19 @@ async function pushToDrive() {
  * - localTime > remoteTime → push local up
  */
 async function syncFromDrive() {
-    if (!state.syncEnabled) return;
+    if (!state.syncEnabled) {
+        updateSyncStatus("offline");
+        return;
+    }
+    if (!navigator.onLine) {
+        updateSyncStatus("offline");
+        return;
+    }
+    if (typeof google === "undefined" || !google.accounts || !google.accounts.oauth2) {
+        console.warn("syncFromDrive: GIS SDK not ready yet. Will sync when ready.");
+        updateSyncStatus("offline", "SDK not ready");
+        return;
+    }
     updateSyncStatus("syncing");
     try {
         const token = await getValidToken(false);
@@ -596,6 +617,7 @@ async function renderSyncMetaBadge() {
     if (typeof initLucideIcons === "function") initLucideIcons(badge);
 }
 
+
 /**
  * Updates the sync status indicator dot and text across all .sync-status-text elements.
  * Also updates state.syncStatus and re-renders the header sync icon.
@@ -625,71 +647,51 @@ function updateSyncStatus(status, detail = "") {
         else if (status === "idle") indicatorDot.classList.add("bg-emerald-500");
     }
 
-    if (typeof initLucideIcons === "function") {
-        initLucideIcons();
-    }
+    if (typeof initLucideIcons === "function") initLucideIcons();
     updateHeaderSyncIcon();
 }
 
 /**
  * Updates the header cloud icon button (#headerSyncBtn) to reflect current sync state.
- * Button is ALWAYS visible (never hidden):
- * - sync disabled: gray cloud-off → open settings
- * - offline / error: slate cloud-off → open settings
- * - idle (connected): indigo cloud-check → triggerManualSync()
- * - syncing: spinning refresh-cw icon
+ * Button is ALWAYS visible — never hidden.
+ * - sync off:  gray cloud-off → open settings
+ * - error/offline: slate cloud-off → open settings
+ * - idle:  indigo cloud-check → triggerManualSync()
+ * - syncing: spinning refresh-cw
  */
 function updateHeaderSyncIcon() {
     const btn = document.getElementById("headerSyncBtn");
     if (!btn) return;
 
-    btn.classList.remove("hidden");
+    const iconEl = document.getElementById("headerSyncIcon");
+    btn.onclick = null;
+    btn.className = "w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 border flex items-center justify-center shadow-lg transition-all";
 
-    // When sync is disabled: gray cloud-off → navigate to settings to enable (task 1a/1e)
     if (!state.syncEnabled) {
-        btn.className = "w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 flex items-center justify-center shadow-lg transition-all text-slate-500 hover:text-slate-400";
+        btn.classList.add("border-slate-700", "text-slate-500", "hover:text-slate-400");
         btn.title = "Cloud sync off — tap to set up";
         btn.onclick = () => switchScreen("settings");
-        if (iconEl) {
-            iconEl.setAttribute("data-lucide", "cloud-off");
-            iconEl.className = "w-4 h-4";
-        }
+        if (iconEl) { iconEl.setAttribute("data-lucide", "cloud-off"); iconEl.className = "w-4 h-4"; }
         if (typeof initLucideIcons === "function") initLucideIcons(btn);
         return;
     }
 
     const status = state.syncStatus || "idle";
-    const iconEl = document.getElementById("headerSyncIcon");
-
-    // Reset classes
-    btn.onclick = null;
-    btn.className = "w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 border flex items-center justify-center shadow-lg transition-all";
 
     if (status === "idle") {
         btn.classList.add("border-indigo-500/40", "text-indigo-400", "hover:text-indigo-300");
         btn.title = "Synced — tap to sync now";
         btn.onclick = () => triggerManualSync();
-        if (iconEl) {
-            iconEl.setAttribute("data-lucide", "cloud-check");
-            iconEl.className = "w-4 h-4";
-        }
+        if (iconEl) { iconEl.setAttribute("data-lucide", "cloud-check"); iconEl.className = "w-4 h-4"; }
     } else if (status === "syncing") {
         btn.classList.add("border-indigo-500/40", "text-indigo-400");
         btn.title = "Syncing…";
-        btn.onclick = null;
-        if (iconEl) {
-            iconEl.setAttribute("data-lucide", "refresh-cw");
-            iconEl.className = "w-4 h-4 animate-spin";
-        }
+        if (iconEl) { iconEl.setAttribute("data-lucide", "refresh-cw"); iconEl.className = "w-4 h-4 animate-spin"; }
     } else {
-        // error or offline
         btn.classList.add("border-slate-700", "text-slate-500", "hover:text-slate-400");
         btn.title = status === "error" ? "Sync error — tap to open settings" : "Offline — tap to open settings";
         btn.onclick = () => switchScreen("settings");
-        if (iconEl) {
-            iconEl.setAttribute("data-lucide", "cloud-off");
-            iconEl.className = "w-4 h-4";
-        }
+        if (iconEl) { iconEl.setAttribute("data-lucide", "cloud-off"); iconEl.className = "w-4 h-4"; }
     }
 
     if (typeof initLucideIcons === "function") initLucideIcons(btn);

@@ -47,9 +47,9 @@
         </div>
 
         <div class="flex items-center gap-2.5">
-            <button id="headerSyncBtn" type="button" title="Sync status"
-                class="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 flex items-center justify-center shadow-lg transition-all text-slate-500"
-                aria-label="Cloud sync status">
+            <button id="headerSyncBtn" type="button" title="Cloud sync off — tap to set up"
+                class="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-500 flex items-center justify-center shadow-lg transition-all"
+                aria-label="Cloud sync status" onclick="switchScreen('settings')">
                 <i id="headerSyncIcon" data-lucide="cloud-off" class="w-4 h-4"></i>
             </button>
             <button id="appSettingsButton" type="button" onclick="switchScreen('settings')" title="Open settings"
@@ -1072,7 +1072,8 @@
                             </summary>
                             <div class="space-y-2.5 pt-2.5 cursor-default" onclick="event.stopPropagation()">
                                 <label class="text-[9px] text-slate-500 font-extrabold uppercase block">Custom Google Client ID</label>
-                                <input type="text" id="settingGoogleClientId" placeholder="Use default Client ID"
+                                <p class="text-[9px] text-slate-600 mb-1">Leave blank to use the built-in default Client ID. Only change this if you have your own Google Cloud project.</p>
+                                <input type="text" id="settingGoogleClientId" placeholder="Default: 219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.apps.googleusercontent.com"
                                     class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-[10px] text-white focus:outline-none" />
                                 <button onclick="saveCustomClientId()"
                                     class="bg-slate-800 hover:bg-slate-750 text-slate-300 font-bold py-1.5 px-3 rounded-lg text-[9px] transition-all active:scale-95">
@@ -2222,7 +2223,7 @@
     <!-- STATE ENGINE & SYSTEM APPLICATION SCRIPT -->
 
     <!-- Google Identity Services & Google APIs for Cloud Sync -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="if(typeof window._dabbuxGISReady==='function')window._dabbuxGISReady()"></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>
 
     <!-- App Modules — order matters: core must load first -->
