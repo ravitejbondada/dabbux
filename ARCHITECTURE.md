@@ -268,7 +268,9 @@ No backend — all auth happens via Google Identity Services (GIS) in-browser.
 `dabbux_sync_v4.json` stored in `appDataFolder` (private, not visible in user's Drive UI).
 
 ### Hardcoded Default Client ID
-`DEFAULT_CLIENT_ID` is defined in both `core.js` and `sync.js`:
+`DEFAULT_CLIENT_ID` is owned by `core.js`. `sync.js` uses its own local
+`SYNC_DEFAULT_CLIENT_ID` fallback with the same value to avoid redeclaring a
+top-level `const` in the shared browser script scope:
 ```
 219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.apps.googleusercontent.com
 ```

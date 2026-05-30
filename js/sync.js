@@ -13,8 +13,10 @@ let tokenClient = null;
 let accessToken = null;
 let tokenExpiry = 0;
 
-// Default client ID can be overridden via state.googleClientId in UI
-const DEFAULT_CLIENT_ID = "219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.apps.googleusercontent.com";
+// Keep this name local to sync.js. core.js already owns DEFAULT_CLIENT_ID in
+// the global script scope, and redeclaring that const prevents this file from
+// loading in browsers.
+const SYNC_DEFAULT_CLIENT_ID = "219866394954-pg9187uvcq3gu0c4l51728m1u1hojt0c.apps.googleusercontent.com";
 
 // Initialize GIS as soon as the SDK script finishes loading.
 // The GIS script tag uses async defer, so this callback fires once it's ready.
@@ -35,7 +37,7 @@ function initGoogleAuth(forceInteractive = false) {
         return;
     }
 
-    const clientId = state.googleClientId || DEFAULT_CLIENT_ID;
+    const clientId = state.googleClientId || SYNC_DEFAULT_CLIENT_ID;
     tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: "https://www.googleapis.com/auth/drive.appdata",
@@ -412,7 +414,7 @@ function _showBudgetConflictModal(localBudget, remoteBudget, onResolved) {
  */
 function applyRemoteState(remoteState, silent = false) {
     // Preserve local connection config before overwriting
-    const preservedClientId = state.googleClientId || DEFAULT_CLIENT_ID;
+    const preservedClientId = state.googleClientId || SYNC_DEFAULT_CLIENT_ID;
     const preservedEmail = state.syncUserEmail || "";
     const preservedFileId = state.syncDriveFileId || "";
 

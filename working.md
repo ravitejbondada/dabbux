@@ -4,7 +4,18 @@
 May 30, 2026
 
 ## [Current Phase]
-Phase 3 — Sync UI Boot Fixes — Complete ✅
+Phase 4 — Duplicate Client ID Boot Crash Fix — Complete ✅
+
+---
+
+## [Phase 4 Fix — May 30, 2026]
+
+| # | Fix | Status | Files |
+|---|---|---|---|
+| 1 | Fixed browser-fatal `Identifier 'DEFAULT_CLIENT_ID' has already been declared` parse error | ✅ | `sync.js` |
+| 2 | Renamed sync module fallback constant to `SYNC_DEFAULT_CLIENT_ID` | ✅ | `sync.js` |
+| 3 | Verified clean browser load now shows `Offline` + `Connect Google Drive` instead of permanent `Checking...` | ✅ | local browser test |
+| 4 | Documented regression and fix | ✅ | `CHANGELOG.md`, `ARCHITECTURE.md`, `working.md` |
 
 ---
 

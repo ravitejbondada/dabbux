@@ -5,6 +5,19 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
+## [v2.6] 2026-05-30 — Fix sync module boot crash from duplicate Client ID constant
+
+**What changed:** Fixed a browser-fatal script parse error that prevented `sync.js` from loading at all, leaving Cloud Sync stuck on the hardcoded "Checking..." status in both normal and incognito sessions.
+
+**Files modified:**
+- `js/sync.js` — renamed the duplicate top-level `DEFAULT_CLIENT_ID` constant to `SYNC_DEFAULT_CLIENT_ID`. `core.js` already declared `DEFAULT_CLIENT_ID`, and classic browser scripts share one global lexical scope, so redeclaring the same `const` caused `Identifier 'DEFAULT_CLIENT_ID' has already been declared` and stopped every sync function from registering.
+- `CHANGELOG.md`, `ARCHITECTURE.md`, `working.md` — documented the regression and the fix.
+
+**Verification:**
+- Clean browser load now renders Cloud Sync status as `Offline` instead of `Checking...`.
+- `#syncControlsContainer` now renders the `Connect Google Drive` button.
+- `updateSyncStatus()` and `renderSyncControls()` are registered again from `sync.js`.
+
 ## [v2.5] 2026-05-30 — Sync UI boot fix: status panel, header icon & GIS timing
 
 **What changed:** Fixed three compounding bugs that left the Cloud Sync panel permanently stuck on "Checking..." and the header icon invisible. Root cause was `updateSyncStatus` function declaration missing from `sync.js` (body existed but signature was deleted), `switchScreen('settings')` never refreshing sync UI on navigation, and the GIS SDK loading async before `initGoogleAuth` was called. Added inline boot patch to `index.html` as a cache-proof safety net.
