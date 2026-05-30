@@ -18,7 +18,7 @@ index.html
 └── JS load order (sequential, globals shared via window scope)
     │
     ├── 1. core.js           ← MUST LOAD FIRST — defines `state`, all modules depend on it
-    ├── 2. auth.js           ← lock/PIN, WebAuthn biometric unlock, locked trip quick add
+    ├── 2. auth.js           ← lock/PIN, WebAuthn biometric unlock, locked expense sheet (slide-up)
     ├── 3. dashboard.js      ← dashboard, quick logs, alerts, PWA reminders
     ├── 4. transactions.js   ← reads/writes state.transactions, state.categories, state.payments
     ├── 5. reports.js        ← reads state.transactions, state.categories, state.payments (read-only)

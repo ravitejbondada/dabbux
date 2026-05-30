@@ -43,10 +43,12 @@ To find where to add/edit something, scan the relevant section header then go to
 | `isBiometricUnlockSupported()` | Checks platform authenticator availability |
 | `syncBiometricSettingsUI()` | Syncs biometric Settings toggle/status and lock button state |
 | `syncBiometricLockUI()` | Enables/disables the lock-screen biometric button |
-| `populateLockedQuickExpenseForm()` | Populates the locked quick expense form from existing categories/payments |
-| `applyLockedCategoryDefaultPayment()` | Applies category default payment inside the locked quick expense form |
-| `clearLockedQuickExpenseForm()` | Clears amount/note fields in the locked quick expense form |
-| `submitLockedQuickExpense(event)` | Adds an on-trip expense during active trip days; blocks normal locked expense logging |
+| `openLockedExpenseSheet()` | Opens the slide-up locked expense sheet; populates selects, pre-fills today's date, resets amount/note, shows active trip badge, focuses amount field |
+| `closeLockedExpenseSheet()` | Hides the locked expense sheet |
+| `closeLockedExpenseSheetOutside(event)` | Closes the sheet when the backdrop (not the panel) is tapped |
+| `populateLockedQuickExpenseForm()` | Populates category and payment selects in the locked expense sheet from existing state; no add-new controls |
+| `applyLockedCategoryDefaultPayment()` | Applies category default payment inside the locked expense sheet |
+| `submitLockedQuickExpense(event)` | Saves expense from locked sheet; routes to active trip expenses if a trip is active, otherwise saves as a normal ledger transaction; triggers sync via `saveStateToLocalStorage()` |
 | `lockApp()` | Shows the lock screen overlay and clears the PIN input buffer |
 | `unlockApp()` | Hides the lock screen after successful PIN entry |
 | `clearBiometricState()` | Clears local WebAuthn credential metadata |

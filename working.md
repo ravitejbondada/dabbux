@@ -53,10 +53,10 @@
 | # | Task | Status | Files |
 |---|---|---|---|
 | 1 | Inspect normal expense and trip expense save paths | Complete | `js/transactions.js`, `js/goals-trips.js` |
-| 2 | Add add-only quick expense form to lock screen | Complete | `index.html` |
-| 3 | Populate locked form with existing categories/payments only | Complete | `js/auth.js` |
-| 4 | Save locked quick expense without exposing edit/add category/payment controls | Complete | `js/auth.js` |
-| 5 | Verify syntax and browser smoke path | Complete | `node --check js/auth.js`; browser smoke verified locked form population and add-only transaction save |
+| 2 | ~~Add add-only quick expense form to lock screen~~ → Replace with clean `+` button that opens a slide-up sheet | Complete | `index.html` |
+| 3 | Populate sheet with existing categories/payments only (no add-new controls) | Complete | `js/auth.js` |
+| 4 | Sheet pre-fills today's date; amount + note reset on open | Complete | `js/auth.js` |
+| 5 | Verify syntax and browser smoke path | Pending | local check |
 
 ### Phase 9 Point 5 Checklist
 
@@ -64,9 +64,10 @@
 |---|---|---|---|
 | 1 | Reuse active trip detection for lock-screen quick expense | Complete | `js/auth.js`, `js/goals-trips.js` |
 | 2 | Save locked quick expense as on-trip expense during active trip days | Complete | `js/auth.js` |
-| 3 | Block normal locked quick expense when no active trip exists | Complete | `js/auth.js` |
-| 4 | Update project documentation for Phase 9 features | In progress | `README.md`, `ARCHITECTURE.md`, `FUNCTIONS.md`, `CHANGELOG.md`, `working.md` |
-| 5 | Verify syntax and browser smoke path | Pending | local check |
+| 3 | Save locked quick expense as normal ledger expense when no active trip | Complete | `js/auth.js` (removed trip-only block; falls through to ledger save) |
+| 4 | Show active trip badge in sheet when trip is detected | Complete | `js/auth.js`, `index.html` |
+| 5 | Update project documentation for Phase 9 features | In progress | `README.md`, `ARCHITECTURE.md`, `FUNCTIONS.md`, `CHANGELOG.md`, `working.md` |
+| 6 | Verify syntax and browser smoke path | Pending | local check |
 
 ---
 

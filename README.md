@@ -101,7 +101,7 @@ On boot, `window.onload` reads it back. If the key is missing, seed data (defaul
 
 - **Biometric unlock:** Settings can register a local WebAuthn/passkey credential for Face ID, fingerprint, or device passkey unlock. PIN remains the fallback. Biometric credentials are device-local and are not inherited from Drive sync.
 - **Reminders:** Daily reminders use browser notifications, prefer service-worker notifications when available, include a test notification button, and check for missed reminders when the app is opened after the scheduled time.
-- **Locked quick expense:** When the app is locked, the Quick Expense form is add-only and uses existing categories/payments. During active trip days it saves directly to the active trip as an on-trip expense. Outside active trip days, normal expense logging requires unlocking.
+- **Locked quick expense:** When the app is locked, a `+` button opens a slide-up expense sheet with a full add-expense form — existing categories and payments only, no add-new controls, date pre-filled to today. During active trip days it saves directly to the active trip as an on-trip expense; outside active trip days it saves as a normal ledger transaction. Both paths trigger a Drive sync via `saveStateToLocalStorage()`.
 - Browser notification timing still depends on OS/browser/PWA behavior; exact native alarms require a native wrapper or server push.
 
 ---

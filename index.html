@@ -81,32 +81,14 @@
         </div>
 
         <div class="w-full space-y-4 max-w-sm">
-            <form id="lockedQuickExpenseForm" onsubmit="submitLockedQuickExpense(event)"
-                class="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5 space-y-3 text-left">
-                <div class="flex items-center justify-between gap-2">
-                    <div>
-                        <h3 class="text-[10px] font-extrabold text-slate-200 uppercase tracking-widest">Quick Expense</h3>
-                        <p class="text-[9px] text-slate-500 mt-0.5">Active trips only. Unlock for normal expenses.</p>
-                    </div>
-                    <i data-lucide="receipt-text" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="number" step="any" min="0" id="lockedExpenseAmount" placeholder="Amount"
-                        class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none" />
-                    <input type="text" id="lockedExpenseNote" placeholder="Note"
-                        class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none" />
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <select id="lockedExpenseCategory"
-                        class="w-full app-dropdown rounded-xl text-[10px] font-bold focus:outline-none"></select>
-                    <select id="lockedExpensePayment"
-                        class="w-full app-dropdown rounded-xl text-[10px] font-bold focus:outline-none"></select>
-                </div>
-                <button type="submit"
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-2.5 rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5">
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Expense
+            <!-- Quick Add button -->
+            <div class="flex justify-center">
+                <button onclick="openLockedExpenseSheet()"
+                    class="w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center"
+                    title="Add expense">
+                    <i data-lucide="plus" class="w-7 h-7 text-white"></i>
                 </button>
-            </form>
+            </div>
 
             <div class="flex justify-center gap-4">
                 <span id="pinDot1"
@@ -158,6 +140,79 @@
             <p class="text-xs text-slate-500">
                 Default Passcode: <strong class="text-indigo-400 font-mono" id="lockScreenPinHint">1234</strong>
             </p>
+        </div>
+    </div>
+
+    <!-- LOCKED QUICK EXPENSE SHEET -->
+    <div id="lockedExpenseSheet"
+        class="fixed inset-0 z-[110] flex flex-col justify-end hidden"
+        onclick="closeLockedExpenseSheetOutside(event)">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+        <!-- Sheet panel -->
+        <div class="relative bg-slate-900 rounded-t-3xl w-full max-w-lg mx-auto shadow-2xl"
+            style="max-height:90vh;overflow-y:auto;">
+            <!-- Handle -->
+            <div class="flex justify-center pt-3 pb-1">
+                <div class="w-10 h-1 rounded-full bg-slate-700"></div>
+            </div>
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 pt-2 pb-4 border-b border-slate-800">
+                <h2 class="text-sm font-extrabold text-white">Add Expense</h2>
+                <button onclick="closeLockedExpenseSheet()"
+                    class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 active:scale-95 transition-all">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <!-- Form body -->
+            <form id="lockedQuickExpenseForm" onsubmit="submitLockedQuickExpense(event)" class="p-5 space-y-5">
+                <!-- Amount -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center space-y-1.5">
+                    <label class="text-[9px] uppercase tracking-widest font-extrabold text-slate-500 block">Expense Amount</label>
+                    <div class="flex items-center justify-center gap-1.5">
+                        <span class="text-4xl font-black text-indigo-400 current-currency-symbol">₹</span>
+                        <input type="number" step="any" min="0" id="lockedExpenseAmount" required placeholder="0"
+                            class="bg-transparent text-4xl font-black focus:outline-none w-48 text-center text-white placeholder-slate-800" />
+                    </div>
+                </div>
+                <!-- Category -->
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest font-extrabold text-slate-400 block">Category Tag</label>
+                    <select id="lockedExpenseCategory" onchange="applyLockedCategoryDefaultPayment()" required
+                        class="w-full app-dropdown rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"></select>
+                </div>
+                <!-- Payment -->
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase tracking-widest font-extrabold text-slate-400 block">Payment Account</label>
+                    <select id="lockedExpensePayment" required
+                        class="w-full app-dropdown rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"></select>
+                </div>
+                <!-- Date + Note -->
+                <div class="grid grid-cols-2 gap-3.5">
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase tracking-widest font-extrabold text-slate-400 block">Date</label>
+                        <input type="date" id="lockedExpenseDate" required
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase tracking-widest font-extrabold text-slate-400 block">Brief Note</label>
+                        <input type="text" id="lockedExpenseNote" placeholder="e.g. Coffee"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                    </div>
+                </div>
+                <!-- Trip context badge (shown when active trip detected) -->
+                <p id="lockedExpenseTripBadge" class="text-[10px] text-indigo-400 font-bold hidden flex items-center gap-1">
+                    <i data-lucide="map-pin" class="w-3 h-3"></i>
+                    <span id="lockedExpenseTripName"></span>
+                </p>
+                <!-- Submit -->
+                <div class="pb-2">
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-indigo-600/10 transition-all text-xs uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95">
+                        <i data-lucide="save" class="w-4 h-4"></i> Save Expense
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
