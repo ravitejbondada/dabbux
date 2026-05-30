@@ -596,11 +596,47 @@ async function renderSyncMetaBadge() {
     if (typeof initLucideIcons === "function") initLucideIcons(badge);
 }
 
+/**
+ * Updates the sync status indicator dot and text across all .sync-status-text elements.
+ * Also updates state.syncStatus and re-renders the header sync icon.
+ */
+function updateSyncStatus(status, detail = "") {
+    state.syncStatus = status;
+    const targets = document.querySelectorAll(".sync-status-text");
+    targets.forEach(el => {
+        if (status === "syncing") {
+            el.innerHTML = `<span class="text-indigo-400 font-bold flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin"></i> Syncing... ${detail}</span>`;
+        } else if (status === "error") {
+            el.innerHTML = `<span class="text-rose-400 font-bold flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Sync Failed (${detail})</span>`;
+        } else if (status === "offline") {
+            el.innerHTML = `<span class="text-slate-500 font-bold flex items-center gap-1"><i data-lucide="wifi-off" class="w-3.5 h-3.5"></i> Offline</span>`;
+        } else if (status === "idle") {
+            const timeStr = state.lastSyncedAt ? formatTimeAgo(state.lastSyncedAt) : "never";
+            el.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-400"></i> Connected • Synced ${timeStr}</span>`;
+        }
+    });
 
+    const indicatorDot = document.getElementById("syncIndicatorDot");
+    if (indicatorDot) {
+        indicatorDot.className = "w-2.5 h-2.5 rounded-full transition-all";
+        if (status === "syncing") indicatorDot.classList.add("bg-indigo-400", "animate-pulse");
+        else if (status === "error") indicatorDot.classList.add("bg-rose-500");
+        else if (status === "offline") indicatorDot.classList.add("bg-slate-600");
+        else if (status === "idle") indicatorDot.classList.add("bg-emerald-500");
+    }
+
+    if (typeof initLucideIcons === "function") {
+        initLucideIcons();
+    }
+    updateHeaderSyncIcon();
+}
+
+/**
+ * Updates the header cloud icon button (#headerSyncBtn) to reflect current sync state:
+ * - sync disabled: button hidden
+ * - offline / error: slate cloud-off, routes to settings
  * - idle (connected): indigo cloud-check, triggers triggerManualSync()
  * - syncing: spinning refresh-cw icon
- * - offline / error: slate cloud-off, routes to settings
- * Hidden entirely when sync is disabled.
  */
 function updateHeaderSyncIcon() {
     const btn = document.getElementById("headerSyncBtn");
@@ -648,37 +684,6 @@ function updateHeaderSyncIcon() {
     }
 
     if (typeof initLucideIcons === "function") initLucideIcons(btn);
-}
-
-
-    state.syncStatus = status;
-    const targets = document.querySelectorAll(".sync-status-text");
-    targets.forEach(el => {
-        if (status === "syncing") {
-            el.innerHTML = `<span class="text-indigo-400 font-bold flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 animate-spin"></i> Syncing... ${detail}</span>`;
-        } else if (status === "error") {
-            el.innerHTML = `<span class="text-rose-400 font-bold flex items-center gap-1"><i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Sync Failed (${detail})</span>`;
-        } else if (status === "offline") {
-            el.innerHTML = `<span class="text-slate-500 font-bold flex items-center gap-1"><i data-lucide="wifi-off" class="w-3.5 h-3.5"></i> Offline</span>`;
-        } else if (status === "idle") {
-            const timeStr = state.lastSyncedAt ? formatTimeAgo(state.lastSyncedAt) : "never";
-            el.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="cloud-check" class="w-3.5 h-3.5 text-emerald-400"></i> Connected • Synced ${timeStr}</span>`;
-        }
-    });
-
-    const indicatorDot = document.getElementById("syncIndicatorDot");
-    if (indicatorDot) {
-        indicatorDot.className = "w-2.5 h-2.5 rounded-full transition-all";
-        if (status === "syncing") indicatorDot.classList.add("bg-indigo-400", "animate-pulse");
-        else if (status === "error") indicatorDot.classList.add("bg-rose-500");
-        else if (status === "offline") indicatorDot.classList.add("bg-slate-600");
-        else if (status === "idle") indicatorDot.classList.add("bg-emerald-500");
-    }
-
-    if (typeof initLucideIcons === "function") {
-        initLucideIcons();
-    }
-    updateHeaderSyncIcon();
 }
 
 /**
