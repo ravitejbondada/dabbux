@@ -378,8 +378,8 @@ function saveBudgetAndCycleSettings() {
 function renderSettingsLists() {
     // Categories
     const catList = document.getElementById("settingsCategoryList");
-    catList.innerHTML = "";
-    const catBadge = document.getElementById("settingsCatCountBadge");
+    if (!catList) return; // guard: drawer sub-panel may not be open
+    catList.innerHTML = ""; = document.getElementById("settingsCatCountBadge");
     if (catBadge) {
         if (state.categories.length > 0) { catBadge.textContent = state.categories.length; catBadge.classList.remove("hidden"); }
         else catBadge.classList.add("hidden");
@@ -607,4 +607,156 @@ async function deletePaymentMethod(payId) {
     renderSettingsLists();
     renderRecurringExpenses();
     refreshCreditCardViews();
+}
+
+/* ── DRAWER SECTION NAVIGATION ───────────────────────────────────────────────
+   openDrawerSection(sectionName) — slides the content sub-panel over the nav,
+   rendering the appropriate form or list into #drawerContentBody.
+   closeDrawerSection() — slides back to the nav list.
+────────────────────────────────────────────────────────────────────────────── */
+
+function openDrawerSection(sectionName) {
+    const nav = document.getElementById('drawerNav');
+    const content = document.getElementById('drawerContent');
+    const body = document.getElementById('drawerContentBody');
+    const title = document.getElementById('drawerContentTitle');
+    if (!nav || !content || !body || !title) return;
+
+    const sectionTitles = {
+        budget:      'Budget & Cycle',
+        categories:  'Categories',
+        payments:    'Payment Methods',
+        creditcards: 'Credit Cards',
+        recurring:   'Recurring Expenses',
+        emis:        'EMIs',
+    };
+
+    title.textContent = sectionTitles[sectionName] || 'Back';
+    body.innerHTML = '';
+
+    switch (sectionName) {
+
+        case 'budget':
+            body.innerHTML = `
+                <div class="drawer-form-section">
+                    <label class="drawer-form-label">Monthly Budget Cap</label>
+                    <input type="number" id="settingMonthlyBudget" placeholder="e.g. 50000"
+                        value="${state.monthlyBudget || ''}"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none" />
+                </div>
+                <div class="drawer-form-section" style="padding-top:12px;">
+                    <label class="drawer-form-label">Budget Reset Cycle</label>
+                    <select id="settingCycleType" onchange="toggleCycleDateSelector()"
+                        class="w-full app-dropdown rounded-lg text-xs focus:outline-none">
+                        <option value="calendar" ${state.cycleType === 'calendar' ? 'selected' : ''}>Calendar Month</option>
+                        <option value="salary"   ${state.cycleType === 'salary'   ? 'selected' : ''}>Payday Cycle</option>
+                    </select>
+                </div>
+                <div id="settingCycleDayContainer" class="drawer-form-section" style="padding-top:12px;${state.cycleType !== 'salary' ? 'display:none;' : ''}">
+                    <label class="drawer-form-label">Cycle Day (Payday)</label>
+                    <input type="number" min="1" max="31" id="settingCycleDay"
+                        value="${state.cycleDay || 1}"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none" />
+                </div>
+                <div class="drawer-form-section" style="padding-top:12px;padding-bottom:4px;">
+                    <label class="drawer-form-label">Credit Card Mode</label>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-400">Enable credit card tab &amp; controls</span>
+                        <input type="checkbox" id="settingCreditCardsEnabled" onchange="toggleCreditCardsSetting()"
+                            ${state.creditCardsEnabled ? 'checked' : ''}
+                            class="w-5 h-5 accent-indigo-500 bg-slate-900 border-slate-800 rounded" />
+                    </div>
+                </div>
+                <button class="drawer-save-btn" onclick="saveBudgetAndCycleSettings()">
+                    Save Configuration
+                </button>`;
+            wrapAllSelects(body);
+            break;
+
+        case 'categories':
+            body.innerHTML = `
+                <div style="padding:12px 16px 0; display:flex; justify-content:flex-end;">
+                    <button onclick="openInlineCategoryModal()"
+                        class="text-[10px] text-indigo-400 font-bold flex items-center gap-1 hover:underline">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add New
+                    </button>
+                </div>
+                <div id="settingsCategoryList" class="space-y-2 p-3 text-slate-100"></div>`;
+            initLucideIcons(body);
+            renderSettingsLists();
+            break;
+
+        case 'payments':
+            body.innerHTML = `
+                <div style="padding:12px 16px 0; display:flex; justify-content:flex-end;">
+                    <button onclick="openInlinePaymentModal()"
+                        class="text-[10px] text-indigo-400 font-bold flex items-center gap-1 hover:underline">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add New
+                    </button>
+                </div>
+                <div id="settingsPaymentList" class="space-y-2 p-3"></div>`;
+            initLucideIcons(body);
+            renderSettingsLists();
+            break;
+
+        case 'creditcards':
+            body.innerHTML = `
+                <div style="padding:16px;">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs text-slate-300 font-medium">Credit Card Mode</span>
+                        <input type="checkbox" id="settingCreditCardsEnabled" onchange="toggleCreditCardsSetting()"
+                            ${state.creditCardsEnabled ? 'checked' : ''}
+                            class="w-5 h-5 accent-indigo-500 bg-slate-900 border-slate-800 rounded" />
+                    </div>
+                    <p class="text-[10px] text-slate-500 leading-relaxed">
+                        Enables the credit card tab, billing cycle tracking, and payment method billing-day fields.
+                        Payment methods with type "Credit Card" can then be managed via Payment Methods.
+                    </p>
+                </div>`;
+            break;
+
+        case 'recurring':
+            body.innerHTML = `
+                <div style="padding:12px 16px 0; display:flex; justify-content:flex-end;">
+                    <button onclick="openRecurringModal()"
+                        class="text-[10px] text-indigo-400 font-bold flex items-center gap-1 hover:underline">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+                    </button>
+                </div>
+                <div id="settingsRecurringList" class="space-y-2.5 p-3 no-scrollbar"></div>
+                <p id="settingsRecurringEmpty" class="text-[10px] text-slate-600 text-center py-2 hidden">No recurring expenses configured.</p>`;
+            initLucideIcons(body);
+            renderSettingsLists();
+            break;
+
+        case 'emis':
+            body.innerHTML = `
+                <div style="padding:12px 16px 0; display:flex; justify-content:flex-end;">
+                    <button onclick="openEMIModal()"
+                        class="text-[10px] text-indigo-400 font-bold flex items-center gap-1 hover:underline">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+                    </button>
+                </div>
+                <div id="settingsEMIList" class="space-y-2.5 p-3 no-scrollbar"></div>
+                <p id="settingsEMIEmpty" class="text-[10px] text-slate-600 text-center py-2 hidden">No credit card EMIs configured.</p>`;
+            initLucideIcons(body);
+            renderSettingsLists();
+            break;
+
+        default:
+            body.innerHTML = '<p class="text-xs text-slate-500 p-4">Nothing here yet.</p>';
+    }
+
+    // Slide: hide nav, show content
+    nav.classList.add('hidden-nav');
+    content.classList.add('open');
+    initLucideIcons(content);
+    wrapAllSelects(content);
+}
+
+function closeDrawerSection() {
+    const nav = document.getElementById('drawerNav');
+    const content = document.getElementById('drawerContent');
+    if (nav) nav.classList.remove('hidden-nav');
+    if (content) content.classList.remove('open');
 }

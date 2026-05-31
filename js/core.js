@@ -387,7 +387,42 @@ function toggleThemeSetting() {
     showNotification(isLight ? "Light theme applied." : "Dark theme applied.");
     initLucideIcons();
 }
+/* ── SIDE DRAWER ─────────────────────────────────────────────────────────────
+   openDrawer / closeDrawer — controls the hamburger side-panel.
+   Defined before switchScreen so switchScreen can call closeDrawer().
+────────────────────────────────────────────────────────────────────────────── */
+function openDrawer() {
+    document.getElementById('sideDrawer').classList.add('open');
+    document.getElementById('drawerBackdrop').classList.add('open');
+    // Update sync pill to reflect current state
+    const pill = document.getElementById('drawerSyncPill');
+    if (pill) {
+        if (state.syncEnabled && state.syncStatus === 'idle') {
+            pill.className = 'drawer-sync-pill drawer-sync-online';
+            pill.textContent = '● Synced';
+        } else if (state.syncEnabled && state.syncStatus === 'syncing') {
+            pill.className = 'drawer-sync-pill drawer-sync-syncing';
+            pill.textContent = '● Syncing…';
+        } else {
+            pill.className = 'drawer-sync-pill drawer-sync-offline';
+            pill.textContent = '● Offline';
+        }
+    }
+    initLucideIcons(document.getElementById('sideDrawer'));
+}
+
+function closeDrawer() {
+    document.getElementById('sideDrawer').classList.remove('open');
+    document.getElementById('drawerBackdrop').classList.remove('open');
+    // Also close any open sub-panel
+    const nav = document.getElementById('drawerNav');
+    const content = document.getElementById('drawerContent');
+    if (nav) nav.classList.remove('hidden-nav');
+    if (content) content.classList.remove('open');
+}
+
 function switchScreen(viewName) {
+    closeDrawer();
     document.querySelectorAll(".view-panel").forEach(p => p.classList.add("hidden"));
     document.getElementById(viewName + "View").classList.remove("hidden");
 
