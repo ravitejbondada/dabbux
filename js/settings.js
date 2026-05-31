@@ -23,10 +23,11 @@ function buildCurrencySelectorOptions() {
 function syncSettingsFormFields() {
     document.getElementById("settingCurrency").value = `${state.currency}|${state.currencySymbol}`;
     const budgetInput = document.getElementById("settingMonthlyBudget");
-    budgetInput.value = state.monthlyBudget;
-    budgetInput.placeholder = "e.g. 50,000";
-    document.getElementById("settingCycleType").value = state.cycleType;
-    document.getElementById("settingCycleDay").value = state.cycleDay;
+    if (budgetInput) { budgetInput.value = state.monthlyBudget; budgetInput.placeholder = "e.g. 50,000"; }
+    const cycleTypeEl = document.getElementById("settingCycleType");
+    if (cycleTypeEl) cycleTypeEl.value = state.cycleType;
+    const cycleDayEl = document.getElementById("settingCycleDay");
+    if (cycleDayEl) cycleDayEl.value = state.cycleDay;
     const creditCardsToggle = document.getElementById("settingCreditCardsEnabled");
     if (creditCardsToggle) creditCardsToggle.checked = !!state.creditCardsEnabled;
     const lightToggle = document.getElementById("settingLightTheme");
@@ -49,12 +50,13 @@ function syncSettingsFormFields() {
 }
 
 function toggleCycleDateSelector() {
-    const selectVal = document.getElementById("settingCycleType").value;
+    const cycleTypeEl = document.getElementById("settingCycleType");
     const target = document.getElementById("settingCycleDayContainer");
-    if (selectVal === "salary") {
-        target.classList.remove("hidden");
+    if (!cycleTypeEl || !target) return; // only present when drawer budget panel is open
+    if (cycleTypeEl.value === "salary") {
+        target.style.display = "";
     } else {
-        target.classList.add("hidden");
+        target.style.display = "none";
     }
 }
 
@@ -376,76 +378,82 @@ function saveBudgetAndCycleSettings() {
 }
 
 function renderSettingsLists() {
-    // Categories
+    // ── Categories ────────────────────────────────────────────────────────────
+    // Guard: only render if the container is currently in the DOM (drawer open)
     const catList = document.getElementById("settingsCategoryList");
-    if (!catList) return; // guard: drawer sub-panel may not be open
-    catList.innerHTML = ""; = document.getElementById("settingsCatCountBadge");
-    if (catBadge) {
-        if (state.categories.length > 0) { catBadge.textContent = state.categories.length; catBadge.classList.remove("hidden"); }
-        else catBadge.classList.add("hidden");
-    }
-    const sortedCategories = [...state.categories].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-    sortedCategories.forEach(cat => {
-        const defPay = state.payments.find(p => p.id === cat.defaultPaymentId) || { name: "None" };
-
-        const row = document.createElement("div");
-        row.className = "flex items-center justify-between p-3.5 bg-slate-900 rounded-xl border border-slate-855 text-xs";
-        row.innerHTML = `
-            <div class="flex items-center gap-2.5 min-w-0">
-                <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
-                <div class="min-w-0">
-                    <span class="font-bold text-slate-100 block truncate">${cat.name}</span>
-                    <span class="text-[9px] text-slate-500 block truncate mt-0.5">Default Account: ${defPay.name}</span>
+    if (catList) {
+        catList.innerHTML = "";
+        const catBadge = document.getElementById("settingsCatCountBadge");
+        if (catBadge) {
+            if (state.categories.length > 0) { catBadge.textContent = state.categories.length; catBadge.classList.remove("hidden"); }
+            else catBadge.classList.add("hidden");
+        }
+        const sortedCategories = [...state.categories].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+        sortedCategories.forEach(cat => {
+            const defPay = state.payments.find(p => p.id === cat.defaultPaymentId) || { name: "None" };
+            const row = document.createElement("div");
+            row.className = "flex items-center justify-between p-3.5 bg-slate-900 rounded-xl border border-slate-855 text-xs";
+            row.innerHTML = `
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
+                    <div class="min-w-0">
+                        <span class="font-bold text-slate-100 block truncate">${cat.name}</span>
+                        <span class="text-[9px] text-slate-500 block truncate mt-0.5">Default Account: ${defPay.name}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="openEditCategoryModal('${cat.id}')" class="p-1.5 hover:bg-slate-850 text-slate-400 rounded">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                </button>
-                <button onclick="deleteCategory('${cat.id}')" class="p-1.5 hover:bg-slate-850 text-rose-400 rounded">
-                    <i data-lucide="trash" class="w-4 h-4"></i>
-                </button>
-            </div>
-        `;
-        catList.appendChild(row);
-    });
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button onclick="openEditCategoryModal('${cat.id}')" class="p-1.5 hover:bg-slate-850 text-slate-400 rounded">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deleteCategory('${cat.id}')" class="p-1.5 hover:bg-slate-850 text-rose-400 rounded">
+                        <i data-lucide="trash" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            catList.appendChild(row);
+        });
+    }
 
-    // Payments
+    // ── Payments ──────────────────────────────────────────────────────────────
     const payList = document.getElementById("settingsPaymentList");
-    payList.innerHTML = "";
-    const activePayments = state.payments.filter(p => !p.archived);
-    const payBadge = document.getElementById("settingsPayCountBadge");
-    if (payBadge) {
-        if (activePayments.length > 0) { payBadge.textContent = activePayments.length; payBadge.classList.remove("hidden"); }
-        else payBadge.classList.add("hidden");
-    }
-    const sortedPayments = [...activePayments].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-    sortedPayments.forEach(pay => {
-        const card = document.createElement("div");
-        card.className = "flex items-center justify-between p-3.5 bg-slate-900 rounded-xl border border-slate-855 text-xs";
-        card.innerHTML = `
-            <div class="flex items-center gap-2.5">
-                <span class="w-3 h-3 rounded-full" style="background-color: ${pay.color}"></span>
-                <div>
-                    <span class="font-bold text-slate-100 block">${pay.name}</span>
-                    <span class="text-[9px] text-slate-500 block mt-0.5">${getPaymentSummaryLabel(pay)}</span>
+    if (payList) {
+        payList.innerHTML = "";
+        const activePayments = state.payments.filter(p => !p.archived);
+        const payBadge = document.getElementById("settingsPayCountBadge");
+        if (payBadge) {
+            if (activePayments.length > 0) { payBadge.textContent = activePayments.length; payBadge.classList.remove("hidden"); }
+            else payBadge.classList.add("hidden");
+        }
+        const sortedPayments = [...activePayments].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+        sortedPayments.forEach(pay => {
+            const card = document.createElement("div");
+            card.className = "flex items-center justify-between p-3.5 bg-slate-900 rounded-xl border border-slate-855 text-xs";
+            card.innerHTML = `
+                <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-full" style="background-color: ${pay.color}"></span>
+                    <div>
+                        <span class="font-bold text-slate-100 block">${pay.name}</span>
+                        <span class="text-[9px] text-slate-500 block mt-0.5">${getPaymentSummaryLabel(pay)}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <button onclick="openEditPaymentModal('${pay.id}')" class="p-1.5 hover:bg-slate-855 text-slate-400 rounded">
-                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                </button>
-                <button onclick="deletePaymentMethod('${pay.id}')" class="p-1.5 hover:bg-slate-855 text-rose-400 rounded">
-                    <i data-lucide="trash" class="w-4 h-4"></i>
-                </button>
-            </div>
-        `;
-        payList.appendChild(card);
-    });
+                <div class="flex items-center gap-1.5">
+                    <button onclick="openEditPaymentModal('${pay.id}')" class="p-1.5 hover:bg-slate-855 text-slate-400 rounded">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deletePaymentMethod('${pay.id}')" class="p-1.5 hover:bg-slate-855 text-rose-400 rounded">
+                        <i data-lucide="trash" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            payList.appendChild(card);
+        });
+    }
 
     initLucideIcons();
-    renderRecurringExpenses();
-    renderEMIsList();
+    // Recurring and EMI lists are rendered by their own functions (defined in other JS files).
+    // Guard against them not being loaded yet.
+    if (typeof renderRecurringExpenses === "function") renderRecurringExpenses();
+    if (typeof renderEMIsList === "function") renderEMIsList();
 }
 
 /* CATEGORIES EDITING */
