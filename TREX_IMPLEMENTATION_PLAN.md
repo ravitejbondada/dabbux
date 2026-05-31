@@ -174,11 +174,14 @@ function closeDrawer() {
   document.getElementById('drawerBackdrop').classList.remove('open');
 }
 ```
+> ⚠️ Define `openDrawer()` and `closeDrawer()` **before** `switchScreen()` in `core.js`. JS hoisting does not apply to `const`/`let` function expressions, so declaration order matters in this shared-global-scope codebase.
 
 **Update `switchScreen()`:** call `closeDrawer()` at the top of switchScreen so navigating always closes the drawer.
 
+**Add `id="appHeaderLogo"` to the logo `<img>` element in `index.html`** during this phase — Phase 6 requires it for the tap handler and it is cleanest to add alongside the other header changes here.
+
 ### `settings.js`
-**Update `renderSettingsLists()`:** This function currently renders categories, payments, recurring, and EMI lists into Settings. After this phase it should still render them — but into a `#drawerContentArea` div inside the drawer instead of the settings screen.
+**Update `renderSettingsLists()`:** This function currently renders categories, payments, recurring, and EMI lists into Settings. After this phase it should still render them — but into a `#drawerContentArea` div inside the drawer instead of the settings screen. Add a null-check guard — `renderSettingsLists()` is also called from `applyRemoteState()` and `syncFromDrive()` in `sync.js`; if the drawer panel isn't open those calls must not throw.
 
 **Add `openDrawerSection(sectionName)`:** switches which content is shown inside the drawer's content area when a drawer item is tapped. For Budget & Cycle / Categories / Payments / Recurring / EMIs — renders the existing form/list HTML into the drawer content panel (the same HTML as before, just hosted differently).
 
@@ -253,6 +256,7 @@ dinoPrefs: {
 ```
 
 **Migration:** `saveStateToLocalStorage()` already handles missing fields gracefully via spread defaults. Add `dinoPrefs` to the `normalizeImportedState()` and `normalizeSyncState()` default fills.
+> ℹ️ `normalizeImportedState()` lives in `backup.js`, not `core.js`. `normalizeSyncState()` lives in `sync.js`. Both files are in the Phase 2 upload list ✅.
 
 ## 2.2 — Settings Personality Section
 
@@ -368,8 +372,11 @@ function saveSoundVolume() {
 
 function toggleFossilMode() {
   state.dinoPrefs.fossilMode = document.getElementById('fossilModeToggle').checked;
-  applyTheme(state.theme, state.dinoPrefs.fossilMode);  // Phase 9 will fully implement
+  // ⚠️ Do NOT call applyTheme() with a second argument here — applyTheme() only
+  // accepts one argument until Phase 9 updates its signature. Just save state;
+  // the Fossil Mode visual will activate in Phase 9.
   saveStateToLocalStorage();
+  showNotification('Fossil Mode saved. Visual applies in a future update.');
 }
 
 function toggleDinoFootprints() {
@@ -488,6 +495,8 @@ function getDailyReminderBody() {
 
 ```js
 // Replace the notification body strings:
+// ⚠️ Do NOT remove the existing state.budgetAlertsEnabled gate at the top of
+// this function — it must still guard all alerts. Only replace the body strings.
 const pct = metrics.spent / metrics.budget * 100;
 if (pct >= 120 && dp('extinctionWarnings')) {
   body = t(`You're ₹${over} over budget!`, `🌋 METEOR STRIKE. You're ₹${over} over budget.`);
@@ -731,6 +740,7 @@ Add the entire `/* === DINO ANIMATIONS === */` block at the end of `styles.css`:
 ## 4.2 — JS Triggers
 
 ### Wrong PIN shake — `auth.js` — `pressPin()`
+> ⚠️ The current codebase has individual `#pinDot1`–`#pinDot4` spans with no shared wrapper. Add `id="pinDots"` to their parent container in `index.html` as part of this phase's HTML step before writing the JS trigger below.
 ```js
 // After wrong PIN detected:
 if (dp('dinoMode')) {
@@ -741,16 +751,18 @@ if (dp('dinoMode')) {
 ```
 
 ### Unlock stomp — `auth.js` — `unlockApp()`
+> ⚠️ The current `unlockApp()` hides the lock screen via `classList.add('opacity-0', 'pointer-events-none')` then a `setTimeout` to add `hidden`. Remove or guard that existing timeout logic when Dino Mode is active, or the two hide paths will conflict and leave the screen in a broken state.
 ```js
 if (dp('dinoMode')) {
-  const lockScreen = document.getElementById('lockScreen');
+  const lockScreen = document.getElementById('simulatedLockScreen'); // actual ID in codebase
   lockScreen.classList.add('lock-screen-exit');
   setTimeout(() => {
     lockScreen.classList.remove('lock-screen-exit');
-    lockScreen.style.display = 'none'; // or existing hide logic
+    lockScreen.classList.add('opacity-0', 'pointer-events-none');
+    setTimeout(() => lockScreen.classList.add('hidden'), 50);
   }, 380);
 } else {
-  // existing hide logic immediately
+  // existing hide logic unchanged
 }
 ```
 
@@ -788,8 +800,9 @@ if (dp('dinoMode') && !isEditing) {
 ```
 
 ### Transaction delete extinction — `transactions.js` — `deleteTransaction()`
+> ⚠️ Transaction rows currently have no `id` attribute. Add `id="tx-row-${tx.id}"` to each row element in `renderHistoryList()` in `transactions.js` as part of this phase's logic step.
 ```js
-const row = document.getElementById(`tx-row-${id}`); // ensure rows have IDs
+const row = document.getElementById(`tx-row-${id}`);
 if (row && dp('dinoMode')) {
   row.classList.add('going-extinct');
   await new Promise(r => setTimeout(r, 380));
@@ -815,6 +828,13 @@ if (row && dp('dinoMode')) {
 **Goal:** The biggest visual changes. Living dino SVG on budget panel, nav icon swaps, sync egg indicator, PIN dots as footprints. Each is a self-contained unit that can be built and tested independently.
 
 ## 5.1 — Living Dino in Budget Panel (⭐⭐⭐⭐⭐)
+
+> ⚠️ **Browser compatibility:** The CSS `d: path(...)` property used for SVG mouth state changes is **not supported on iOS Safari** (as of mid-2025). Use JS attribute mutation instead:
+> ```js
+> // Instead of CSS d: path(...), do:
+> document.querySelector('.dino-mouth').setAttribute('d', 'M55,40 Q62,38 68,40');
+> ```
+> Apply this swap in `getDinoState()` after setting the class.
 
 **File:** `dashboard.js` — `renderForecastCard()`
 
@@ -904,7 +924,7 @@ if (dp('dinoMode')) {
 }
 ```
 
-Add `data-nav-icon="dashboard"` etc. to the nav icon elements in `index.html`.
+Add `data-nav-icon="dashboard"` etc. to the nav icon elements in `index.html`. Do this in the HTML step of Phase 5 before writing the `switchScreen()` icon-swap logic — a function referencing a missing `data-nav-icon` attribute will silently no-op.
 
 ## 5.3 — Sync Egg Indicator (⭐⭐⭐⭐⭐)
 
@@ -947,12 +967,13 @@ State → egg behavior:
 ```
 
 In `updateHeaderSyncIcon()`:
+> ⚠️ The egg SVG uses `id="syncEggCrack"` on the crack path. Since `updateHeaderSyncIcon()` re-injects the SVG HTML on every call, avoid using `id` on inner SVG elements — use a `class` instead and query within the button scope to avoid duplicate IDs in the DOM.
 ```js
 const btn = document.getElementById('headerSyncBtn');
 if (dp('dinoMode')) {
   // Inject egg SVG, apply state class
-  btn.innerHTML = `[egg SVG HTML]`;
-  const eggEl = btn.querySelector('#syncEggSvg') || btn;
+  btn.innerHTML = `[egg SVG HTML]`; // use class="sync-egg-crack" not id=
+  const eggEl = btn.querySelector('.sync-egg-svg') || btn;
   eggEl.className = {
     idle:    'sync-egg-idle',
     syncing: 'sync-egg-syncing',
@@ -1080,7 +1101,12 @@ function showDinoStatsSheet() {
   const today = getTodayLocalISO();
   const todayTxs = state.transactions.filter(tx => tx.date === today);
   const todaySpent = todayTxs.reduce((s, tx) => s + tx.amount, 0);
-  const todayCatId = todayTxs.length ? /* most frequent category */ null : null;
+  // Find the most frequently used categoryId today
+  const catFreq = {};
+  todayTxs.forEach(tx => { catFreq[tx.categoryId] = (catFreq[tx.categoryId] || 0) + 1; });
+  const todayCatId = todayTxs.length
+    ? Object.entries(catFreq).sort((a, b) => b[1] - a[1])[0]?.[0]
+    : null;
   const todayCat = state.categories.find(c => c.id === todayCatId);
   const sym = state.currencySymbol;
 
@@ -1221,6 +1247,9 @@ function showCinematicOriginStory({ txCount, allTimeSpent, daysSince, sym }) {
 ```
 
 ## 6.4 — Stability Checklist
+
+> ⚠️ `calculateCycleMetrics()` currently returns `{ spent, remaining, safeDaily, daysLeft, budget }`. Phase 6 and Phase 7 need `startDate`, `endDate`, and `daysGone` from it. **Update `calculateCycleMetrics()` in `dashboard.js` to include these three fields in its return object during this phase.**
+
 - [ ] Single tap → Dashboard (already on dashboard → scroll to top)
 - [ ] Double tap → Stats sheet slides up with real numbers
 - [ ] 5 taps → Easter egg modal appears (terminal or cinematic)
@@ -1251,6 +1280,15 @@ let _smileyTurnedAwayTimer = null;
 
 ```js
 function attachSmileyTapHandler(el, metrics) {
+  // ⚠️ Reset annoyance state on every render so a new expense or screen switch
+  // clears the previous session. Without this, the dino stays turned away across
+  // re-renders even after the 10s timer fires.
+  _smileyAnnoyanceCount = 0;
+  _smileyTurnedAway = false;
+  _smileyTapCount = 0;
+  clearTimeout(_smileyTapTimer);
+  clearTimeout(_smileyTurnedAwayTimer);
+
   let pressTimer = null;
   const pct = metrics.budget > 0 ? (metrics.spent / metrics.budget * 100) : 0;
 
@@ -1309,6 +1347,7 @@ function handleSmiley1Tap(el, pct, metrics) {
 ## 7.4 — `handleSmiley2Tap(el, pct, metrics)` — double tap with real numbers
 
 ```js
+// ⚠️ metrics.daysGone must be added to calculateCycleMetrics() return object in Phase 6.
 function handleSmiley2Tap(el, pct, metrics) {
   const s = getPctState(pct);
   const sym = state.currencySymbol;
@@ -1529,6 +1568,8 @@ function playSound(id) {
 
 ## 8.2 — Sound Call Sites
 
+> ⚠️ `unlockApp()` is called from both PIN success and biometric success. Without a guard, biometric unlock plays two sounds (`S.UNLOCK_BIO` from `simulateBiometrics` + `S.UNLOCK_PIN` from `unlockApp`). Add a `silent = false` parameter to `unlockApp(silent)` and skip `playSound(S.UNLOCK_PIN)` when `silent` is true. `simulateBiometrics()` calls `unlockApp(true)`; PIN path calls `unlockApp()` (default false).
+
 **Every function below gets a single `playSound(S.XXX)` line added.** The call is always one line — never branches on mode (the engine handles that).
 
 | File | Function | Sound ID |
@@ -1541,8 +1582,8 @@ function playSound(id) {
 | `dashboard.js` | `triggerQuickLog` | `S.SAVE_QUICK` |
 | `auth.js` | `submitLockedQuickExpense` | `S.SAVE` |
 | `auth.js` | `lockApp` | `S.LOCK` |
-| `auth.js` | `unlockApp` | `S.UNLOCK_PIN` |
-| `auth.js` | `simulateBiometrics` (success) | `S.UNLOCK_BIO` |
+| `auth.js` | `unlockApp(silent?)` | `S.UNLOCK_PIN` — **only when `silent` is false (default)**; biometric path passes `true` |
+| `auth.js` | `simulateBiometrics` (success) | `S.UNLOCK_BIO` — calls `unlockApp(true)` to suppress the PIN unlock sound |
 | `auth.js` | `pressPin` (each digit) | `S.PIN_TAP` |
 | `auth.js` | `clearPin` | `S.PIN_BACK` |
 | `auth.js` | `pressPin` (wrong PIN) | `S.PIN_WRONG` |
@@ -1555,7 +1596,7 @@ function playSound(id) {
 | `settings.js` | `toggleThemeSetting` | `S.SYSTEM` |
 | `goals-trips.js` | `createNewSavingGoalDedicated` | `S.SAVE` |
 | `goals-trips.js` | `fundSavingGoalDedicated` | `S.SAVE` |
-| `goals-trips.js` | `fundSavingGoalDedicated` (if 100%) | `S.GOAL_HATCHED` |
+| `goals-trips.js` | `fundSavingGoalDedicated` (if 100%) | `S.GOAL_HATCHED` — coordinate with Phase 9 egg animation so both fire together in the same block |
 | `goals-trips.js` | `removeSavingGoalDedicated` | `S.DELETE` |
 | `goals-trips.js` | `createNewTrip` | `S.SAVE` |
 | `goals-trips.js` | `addTripExpense` | `S.SAVE` |
@@ -1627,6 +1668,11 @@ html[data-theme="fossil"] {
 ```
 
 **In `core.js` — `applyTheme()`:**
+> ⚠️ `applyTheme()` currently has the signature `applyTheme(theme)` — one argument. Phase 9 changes it to `applyTheme(theme, fossilMode)`. Update all existing call sites:
+> - `toggleThemeSetting()` in `settings.js` → `applyTheme(state.theme)` still works (second arg undefined → no fossil). ✅ No change needed.
+> - `window.onload` boot call in `core.js` → update to `applyTheme(state.theme, state.dinoPrefs?.fossilMode)`.
+> - `toggleFossilMode()` in `settings.js` → now add `applyTheme(state.theme, state.dinoPrefs.fossilMode)` (this was deferred from Phase 2).
+
 ```js
 function applyTheme(theme, fossilMode) {
   const html = document.documentElement;
@@ -1725,6 +1771,12 @@ const sectionTitle = dp('dinoMode') && dp('recentActivityLabel') === 'dino'
 ```
 
 ## 9.5 — Stability Checklist
+
+> ⚠️ `fossilMode` is described as device-local. In `sync.js`, `buildMergedSyncState()` merges `dinoPrefs` as a scalar object — this means `fossilMode` from a remote device can overwrite the local value. **Exclude `fossilMode` from the sync merge in Phase 9**: after the `dinoPrefs` merge, re-apply the local `fossilMode` value:
+> ```js
+> if (merged.dinoPrefs) merged.dinoPrefs.fossilMode = localState.dinoPrefs?.fossilMode ?? false;
+> ```
+
 - [ ] Fossil Mode applies correct color palette on toggle
 - [ ] Switching from Fossil → Dark → Light all work correctly
 - [ ] Fossil Mode is device-local (not overridden by sync)
@@ -1940,4 +1992,15 @@ This document (`TREX_IMPLEMENTATION_PLAN.md`) is read-only — do not edit it mi
 
 ## Plan Amendments
 
-*(None yet — this section is updated only when the plan itself changes, not when code deviates slightly from it.)*
+### Amendment 1 — `dp()` returns undefined on uninitialised state (affects all phases)
+If a user opens the app for the first time after `dinoPrefs` is added (Phase 2), `state.dinoPrefs` will be `undefined` until `normalizeImportedState()` or `normalizeSyncState()` runs. `dp(key)` already guards against this with `(state.dinoPrefs || {})[key]` → returns `undefined` (falsy). This means every `dp('dinoMode')` call returns falsy until the state is normalised, so the app will appear in Normal Mode on first boot of an old state. **This is intentional safe-default behaviour.** No code change required; noting here for awareness.
+
+### Amendment 2 — Phase 3 session splitting
+Phase 3 touches 11 JS files simultaneously. Given file sizes (dashboard.js 600+ lines, goals-trips.js 1500+ lines), split Phase 3 across multiple sessions. Suggested split:
+- Session A: `core.js` (`t()` helper) + `auth.js` + `sync.js`
+- Session B: `transactions.js` + `settings.js` + `backup.js` + `credit-cards.js`
+- Session C: `dashboard.js` + `reports.js` + `goals-trips.js` + `recurring.js`
+Upload only the files for that session. Stability checklist is verified after Session C completes all three.
+
+### Amendment 3 — `appHeaderLogo` ID added in Phase 1 not Phase 6
+Phase 6 requires `id="appHeaderLogo"` on the header logo `<img>`. Since Phase 1 already modifies the header (adding hamburger button), add the ID during Phase 1's HTML step to avoid a second index.html edit in Phase 6.

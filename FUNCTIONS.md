@@ -48,15 +48,15 @@ To find where to add/edit something, scan the relevant section header then go to
 | `closeLockedExpenseSheetOutside(event)` | Closes the sheet when the backdrop (not the panel) is tapped |
 | `populateLockedQuickExpenseForm()` | Populates category and payment selects in the locked expense sheet from existing state; no add-new controls |
 | `applyLockedCategoryDefaultPayment()` | Applies category default payment inside the locked expense sheet |
-| `submitLockedQuickExpense(event)` | Saves expense from locked sheet; routes to active trip expenses if a trip is active, otherwise saves as a normal ledger transaction; triggers sync via `saveStateToLocalStorage()` |
-| `lockApp()` | Shows the lock screen overlay and clears the PIN input buffer |
-| `unlockApp()` | Hides the lock screen after successful PIN entry |
+| `submitLockedQuickExpense(event)` | Saves expense from locked sheet; routes to active trip expenses if a trip is active, otherwise saves as a normal ledger transaction; both paths trigger sync via `saveStateToLocalStorage()` |
+| `lockApp()` | Shows the lock screen overlay, clears the PIN input buffer, and closes the locked expense sheet if open |
+| `unlockApp()` | Hides the lock screen after successful PIN entry and closes the locked expense sheet |
 | `clearBiometricState()` | Clears local WebAuthn credential metadata |
 | `togglePinSetting()` | Enables/disables PIN lock from the settings checkbox |
 | `registerBiometricCredential()` | Registers a platform WebAuthn credential for this device |
 | `toggleBiometricSetting()` | Enables/disables biometric unlock from Settings |
 | `pressPin(char)` | Handles a numeric keypad press; auto-submits on 4 digits |
-| `clearPin()` | Backspace — removes the last digit from the PIN input buffer |
+| `clearPin()` | Clears the last entered PIN digit; triggered by the small `x` inline beside the PIN dots |
 | `simulateBiometrics()` | Runs WebAuthn biometric/passkey unlock; PIN remains fallback |
 | `updatePinVisualDots()` | Updates the 4 dot indicators based on current `pinAttemptBuffer` length |
 | `changePin()` | Validates old PIN, sets new PIN from settings form, saves state |
@@ -91,7 +91,7 @@ To find where to add/edit something, scan the relevant section header then go to
 | `getDailyReminderBody()` | Builds the daily reminder notification body |
 | `showTrexBrowserNotification(title, body)` | Sends a service-worker notification when possible, otherwise falls back to `new Notification` |
 | `markDailyReminderShown()` | Records today's reminder as shown |
-| `scheduleDailyReminder()` | Schedules the next in-browser daily reminder while the app/browser is active |
+| `scheduleDailyReminder()` | Schedules the next in-browser daily reminder using `setTimeout` while the tab is active; does not fire when the screen is off or the browser is backgrounded (PWA limitation — requires Capacitor for native delivery) |
 | `checkMissedDailyReminder()` | Sends a missed reminder when the app opens after the configured time |
 | `sendTestReminderNotification()` | Sends a test browser notification from Settings |
 | `requestNotificationPermission(callback)` | Requests browser notification permission, calls callback on grant |
@@ -374,7 +374,7 @@ To find where to add/edit something, scan the relevant section header then go to
 |---|---|
 | `pushToDrive()` | Serializes `state` and uploads it to Drive; updates `state.lastSyncedAt` on success |
 | `syncFromDrive()` | Silent background pull: reconciles categories, payments, transactions, goals, trips, recurring expenses, and EMIs by `id`; applies newer shared settings; pushes converged state back to Drive when needed |
-| `buildMergedSyncState(localState, remoteState)` | Builds a converged state object from local + remote collections and shared settings |
+| `buildMergedSyncState(localState, remoteState)` | Builds a converged state object from local + remote collections and shared settings; `monthlyBudget` uses non-zero-wins logic — the higher non-zero value is kept regardless of timestamp |
 | `sameSyncArrays(a, b)` | Compares sync-relevant arrays and scalar settings to detect whether reconciliation changed either side |
 | `applyRemoteState(remoteState, silent?)` | Normalizes and applies a remote state object; preserves `googleClientId`, `syncUserEmail`, `syncDriveFileId`; forces `syncEnabled=true`; re-renders UI without page reload |
 | `_applyRemoteSilent(remoteState, isInitialLinkage, token, fileId)` | Legacy/internal helper for applying remote state after budget conflict decisions |

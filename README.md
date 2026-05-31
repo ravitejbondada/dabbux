@@ -58,7 +58,7 @@ TReX/
 │   └── favicon.png        App icon (transparent, favicon + Apple touch icon + PWA icon)
 └── js/
     ├── core.js             State, boot, persistence, routing, theme, notifications
-    ├── auth.js             PIN lock/unlock, WebAuthn biometrics, locked trip quick add
+    ├── auth.js             PIN lock/unlock, WebAuthn biometrics, locked expense sheet (slide-up)
     ├── dashboard.js        Budget widgets, forecast, heatmap, quick logs, alerts/reminders
     ├── transactions.js     Add/edit expense form, ledger history, filter/search
     ├── reports.js          Chart.js renderers, analytics reports, MoM comparison
@@ -101,7 +101,8 @@ On boot, `window.onload` reads it back. If the key is missing, seed data (defaul
 
 - **Biometric unlock:** Settings can register a local WebAuthn/passkey credential for Face ID, fingerprint, or device passkey unlock. PIN remains the fallback. Biometric credentials are device-local and are not inherited from Drive sync.
 - **Reminders:** Daily reminders use browser notifications, prefer service-worker notifications when available, include a test notification button, and check for missed reminders when the app is opened after the scheduled time.
-- **Locked quick expense:** When the app is locked, a `+` button opens a slide-up expense sheet with a full add-expense form — existing categories and payments only, no add-new controls, date pre-filled to today. During active trip days it saves directly to the active trip as an on-trip expense; outside active trip days it saves as a normal ledger transaction. Both paths trigger a Drive sync via `saveStateToLocalStorage()`.
+- **Locked quick expense:** When the app is locked, a `circle-plus` key in the PIN keypad (bottom-right) opens a slide-up expense sheet — existing categories and payments only, no add-new controls, date pre-filled to today. Saves to the active trip if one is in progress; otherwise saves as a normal ledger transaction. Both paths trigger Drive sync via `saveStateToLocalStorage()`.
+- **PWA reminder limitation:** The daily reminder scheduler uses `setTimeout` and requires the browser tab to be active. Background / screen-off firing is not supported in a PWA without a server-push or native wrapper. Planned: Capacitor migration for exact native alarm delivery.
 - Browser notification timing still depends on OS/browser/PWA behavior; exact native alarms require a native wrapper or server push.
 
 ---

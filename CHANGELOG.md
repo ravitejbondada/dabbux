@@ -5,6 +5,22 @@ Files listed are the ones modified. Always update this on any meaningful change.
 
 ---
 
+## [v3.5] 2026-05-30 — Lock screen UX rework, encoding fixes, budget sync fix
+
+**What changed:** Reworked the locked quick expense UX, fixed widespread UTF-8 encoding corruption in dashboard.js, and fixed a budget field sync bug where a device with no budget could overwrite a real budget from another device.
+
+**Files modified:**
+- `index.html` — replaced the floating `+` button and inline lock-screen form with a `circle-plus` keypad key (bottom-right, same style as biometric key); moved delete to a small `x` inline beside the PIN dots; added `#lockedExpenseSheet` slide-up sheet with full add-expense form (big amount input, category, payment, date pre-filled today, note, active trip badge).
+- `js/auth.js` — added `openLockedExpenseSheet()`, `closeLockedExpenseSheet()`, `closeLockedExpenseSheetOutside()`; `submitLockedQuickExpense()` now saves to normal ledger when no active trip is detected (removed trip-only block); `lockApp()` closes sheet on lock; `unlockApp()` closes sheet on unlock.
+- `js/dashboard.js` — fixed widespread UTF-8 double-encoding corruption: 284× `──` section dividers, 11× `–` en dashes, 3× `·` middle dots, 2× `→` arrows, 1× `🔔` bell emoji; stripped BOM from file header. All emojis (😄 😱 😰 😟 😐 🙂 🎯) confirmed clean.
+- `js/sync.js` — fixed `buildMergedSyncState()` budget merge: `monthlyBudget` now prefers the non-zero value regardless of timestamp; a device with `monthlyBudget: 0` can no longer overwrite a real budget from another device.
+- `README.md`, `ARCHITECTURE.md`, `FUNCTIONS.md`, `CHANGELOG.md`, `working.md` — updated docs.
+
+**Behavior:**
+- Lock screen keypad bottom row: `[biometric] [0] [circle-plus]`. Tapping the `circle-plus` key opens the expense sheet; the sheet pre-fills today's date, focuses the amount field, shows a trip badge if an active trip is detected. Saving routes to the active trip or the normal ledger.
+- Budget sync: highest non-zero budget wins on merge, regardless of which device has the newer `updatedAt`.
+- PWA reminder limitation documented: `scheduleDailyReminder()` uses `setTimeout` and requires the browser tab to be active; background/screen-off firing requires a native wrapper (Capacitor) or server-push. Noted for future Capacitor migration.
+
 ## [v3.4] 2026-05-30 - Hosted web app enablement
 
 **What changed:** Enabled hosted-web security and reminder features, added lock-screen active-trip quick expense, moved reset controls to the final Settings panel, and fixed reset-marker follow-up behavior.

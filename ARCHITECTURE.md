@@ -18,7 +18,7 @@ index.html
 └── JS load order (sequential, globals shared via window scope)
     │
     ├── 1. core.js           ← MUST LOAD FIRST — defines `state`, all modules depend on it
-    ├── 2. auth.js           ← lock/PIN, WebAuthn biometric unlock, locked expense sheet (slide-up)
+    ├── 2. auth.js           ← lock/PIN, WebAuthn biometric unlock, locked expense sheet (circle-plus keypad key)
     ├── 3. dashboard.js      ← dashboard, quick logs, alerts, PWA reminders
     ├── 4. transactions.js   ← reads/writes state.transactions, state.categories, state.payments
     ├── 5. reports.js        ← reads state.transactions, state.categories, state.payments (read-only)
@@ -288,6 +288,13 @@ top-level `const` in the shared browser script scope:
 ```
 Used as fallback whenever `state.googleClientId` is empty or uninitialized.
 
+### PWA Reminder Limitation
+`scheduleDailyReminder()` uses `setTimeout` in the browser page. It requires the
+browser tab to be active and unfrozen. Android background throttling and screen-off
+will kill the timer. True background delivery requires a server-push (`webpush`) or
+a native wrapper (Capacitor `@capacitor/local-notifications`). Planned for a future
+Capacitor migration phase.
+
 ### Boot Sequence
 ```
 window.onload (core.js):
@@ -317,6 +324,9 @@ Last-write-wins using `state.updatedAt` ISO timestamp:
 - Shared settings such as currency, budget cycle, theme, reminder settings, and
   budget alert settings follow the newer state. `creditCardsEnabled=true` is
   preserved across devices so a stale `false` cannot hide card mode.
+- `monthlyBudget` uses **non-zero wins** logic: the higher non-zero value is kept
+  regardless of which device has the newer `updatedAt`. A device with no budget
+  set (`0`) can never overwrite a real budget from another device.
 - `remoteTime === localTime` → already in sync, no-op
 - `remoteTime > localTime` after reconciliation → remote state applies locally
 - `local.monthlyBudget !== remote.monthlyBudget` → scoped **Budget Conflict Modal** (two-button: "This device" / "Cloud"); no full-page modal
