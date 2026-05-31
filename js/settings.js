@@ -393,10 +393,11 @@ function renderSettingsLists() {
         sortedCategories.forEach(cat => {
             const defPay = state.payments.find(p => p.id === cat.defaultPaymentId) || { name: "None" };
             const row = document.createElement("div");
-            row.className = "flex items-center justify-between p-3.5 bg-slate-900 rounded-xl border border-slate-855 text-xs";
+            row.className = "flex items-center justify-between bg-slate-900 rounded-xl border border-slate-855 text-xs overflow-hidden";
             row.innerHTML = `
+                <div style="width:3px;align-self:stretch;background:${cat.color};flex-shrink:0;"></div>
+                <div class="flex items-center justify-between flex-1 p-3.5 min-w-0">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
                     <div class="min-w-0">
                         <span class="font-bold text-slate-100 block truncate">${cat.name}</span>
                         <span class="text-[9px] text-slate-500 block truncate mt-0.5">Default Account: ${defPay.name}</span>
@@ -409,6 +410,7 @@ function renderSettingsLists() {
                     <button onclick="deleteCategory('${cat.id}')" class="p-1.5 hover:bg-slate-850 text-rose-400 rounded">
                         <i data-lucide="trash" class="w-4 h-4"></i>
                     </button>
+                </div>
                 </div>
             `;
             catList.appendChild(row);
@@ -428,10 +430,11 @@ function renderSettingsLists() {
         const sortedPayments = [...activePayments].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
         sortedPayments.forEach(pay => {
             const card = document.createElement("div");
-            card.className = "flex items-center justify-between p-3.5 bg-slate-900 rounded-xl border border-slate-855 text-xs";
+            card.className = "flex items-center justify-between bg-slate-900 rounded-xl border border-slate-855 text-xs overflow-hidden";
             card.innerHTML = `
+                <div style="width:3px;align-self:stretch;background:${pay.color};flex-shrink:0;"></div>
+                <div class="flex items-center justify-between flex-1 p-3.5">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-3 h-3 rounded-full" style="background-color: ${pay.color}"></span>
                     <div>
                         <span class="font-bold text-slate-100 block">${pay.name}</span>
                         <span class="text-[9px] text-slate-500 block mt-0.5">${getPaymentSummaryLabel(pay)}</span>
@@ -444,6 +447,7 @@ function renderSettingsLists() {
                     <button onclick="deletePaymentMethod('${pay.id}')" class="p-1.5 hover:bg-slate-855 text-rose-400 rounded">
                         <i data-lucide="trash" class="w-4 h-4"></i>
                     </button>
+                </div>
                 </div>
             `;
             payList.appendChild(card);
@@ -669,9 +673,18 @@ function openDrawerSection(sectionName) {
                     </select>
                 </div>
                 <div id="settingCycleDayContainer" class="drawer-form-section" style="padding-top:12px;${!_isSalary ? 'display:none;' : ''}">
-                    <label class="drawer-form-label" style="margin-bottom:10px;">Payday — day of month</label>
-                    <!-- iOS-style wheel picker -->
+                    <label class="drawer-form-label" style="margin-bottom:8px;">Payday — day of month</label>
+                    <!-- Tap-to-open display field -->
+                    <div id="cycleDayDisplay" onclick="toggleCycleDayWheel()" style="
+                        display:flex; align-items:center; justify-content:space-between;
+                        background:#0f172a; border:1px solid #334155; border-radius:10px;
+                        padding:11px 14px; cursor:pointer;">
+                        <span id="cycleDayDisplayText" style="font-size:0.85rem;font-weight:600;color:#f1f5f9;">Day ${_curDay}</span>
+                        <span id="cycleDayChevron" style="font-size:0.7rem;color:#64748b;transition:transform 0.2s;">▼</span>
+                    </div>
+                    <!-- Collapsed wheel — shown on tap -->
                     <div id="cycleDayWheel" style="
+                        display:none; margin-top:6px;
                         position:relative; height:168px; overflow:hidden;
                         border-radius:14px; background:#0f172a;
                         border:1px solid rgba(99,102,241,0.25);
@@ -721,14 +734,33 @@ function openDrawerSection(sectionName) {
                     Save Configuration
                 </button>`;
             wrapAllSelects(body);
-            // ── Init wheel picker ─────────────────────────────────────────────
-            (function initCycleDayWheel() {
+            // ── Toggle function ───────────────────────────────────────────────
+            window._cycleDayWheelOpen = false;
+            window.toggleCycleDayWheel = function() {
+                const wheel   = body.querySelector('#cycleDayWheel');
+                const chevron = body.querySelector('#cycleDayChevron');
+                window._cycleDayWheelOpen = !window._cycleDayWheelOpen;
+                if (window._cycleDayWheelOpen) {
+                    wheel.style.display = 'block';
+                    chevron.style.transform = 'rotate(180deg)';
+                    // init wheel now that it's visible
+                    initCycleDayWheelLogic(body);
+                } else {
+                    wheel.style.display = 'none';
+                    chevron.style.transform = 'rotate(0deg)';
+                }
+            };
+            // ── Wheel logic (deferred until wheel is shown) ───────────────────
+            window.initCycleDayWheelLogic = function(container) {
                 const ITEM_H = 42;
-                const track  = body.querySelector('#cycleDayWheelTrack');
-                const hidden = body.querySelector('#settingCycleDay');
+                const track  = container.querySelector('#cycleDayWheelTrack');
+                const hidden = container.querySelector('#settingCycleDay');
+                const displayText = container.querySelector('#cycleDayDisplayText');
+                if (!track || track._wheelInited) return;
+                track._wheelInited = true;
                 let currentDay = parseInt(hidden.value, 10) || 1;
-                let offsetY = 0; // translateY applied to track
-                let startY = 0, startOffset = 0, isDragging = false, velocity = 0, lastY = 0, lastT = 0;
+                let offsetY = 0, startY = 0, startOffset = 0;
+                let isDragging = false, velocity = 0, lastY = 0, lastT = 0;
 
                 function clamp(v) { return Math.min(Math.max(v, -(28 - 1) * ITEM_H), 0); }
 
@@ -738,17 +770,16 @@ function openDrawerSection(sectionName) {
                     track.style.transition = animate ? 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)' : 'none';
                     track.style.transform = `translateY(${offsetY}px)`;
                     hidden.value = currentDay;
+                    if (displayText) displayText.textContent = `Day ${currentDay}`;
                     track.querySelectorAll('.wheel-item').forEach(el => {
-                        el.style.color = parseInt(el.dataset.value) === currentDay ? '#a5b4fc' : '#94a3b8';
-                        el.style.fontWeight = parseInt(el.dataset.value) === currentDay ? '700' : '400';
-                        el.style.fontSize   = parseInt(el.dataset.value) === currentDay ? '17px'  : '14px';
+                        const isSelected = parseInt(el.dataset.value) === currentDay;
+                        el.style.color      = isSelected ? '#a5b4fc' : '#94a3b8';
+                        el.style.fontWeight = isSelected ? '700' : '400';
+                        el.style.fontSize   = isSelected ? '17px' : '14px';
                     });
                 }
-
-                // Set initial position without animation
                 snapTo(currentDay, false);
 
-                // Pointer events (works on both touch and mouse)
                 track.addEventListener('pointerdown', e => {
                     track.style.cursor = 'grabbing';
                     isDragging = true; velocity = 0;
@@ -760,9 +791,8 @@ function openDrawerSection(sectionName) {
 
                 track.addEventListener('pointermove', e => {
                     if (!isDragging) return;
-                    const dy = e.clientY - lastY;
                     const dt = Date.now() - lastT;
-                    velocity = dt > 0 ? dy / dt : 0;
+                    velocity = dt > 0 ? (e.clientY - lastY) / dt : 0;
                     lastY = e.clientY; lastT = Date.now();
                     offsetY = clamp(startOffset + (e.clientY - startY));
                     track.style.transition = 'none';
@@ -774,20 +804,15 @@ function openDrawerSection(sectionName) {
                     if (!isDragging) return;
                     isDragging = false;
                     track.style.cursor = 'grab';
-                    // Fling with velocity, then snap
-                    const flung = clamp(offsetY + velocity * 120);
-                    const rawDay = 1 + Math.round(-flung / ITEM_H);
-                    snapTo(rawDay, true);
+                    snapTo(1 + Math.round(-clamp(offsetY + velocity * 120) / ITEM_H), true);
                     e.preventDefault();
                 }, { passive: false });
 
-                // Wheel/scroll on desktop
                 track.addEventListener('wheel', e => {
                     e.preventDefault();
-                    const delta = e.deltaY > 0 ? 1 : -1;
-                    snapTo(currentDay + delta, true);
+                    snapTo(currentDay + (e.deltaY > 0 ? 1 : -1), true);
                 }, { passive: false });
-            })();
+            };
             break;
         }
             wrapAllSelects(body);
@@ -824,29 +849,43 @@ function openDrawerSection(sectionName) {
             const _cards = state.payments.filter(p => !p.archived && (p.type === 'Credit Card' || p.type === 'CC'));
             const _sym = state.currencySymbol || '₹';
 
-            // Build per-card rows
-            let _cardRows = '';
+            // Compute portfolio totals
+            let _totalDue = 0, _totalRecent = 0;
+            const _buckets = [];
             if (_ccEnabled && _cards.length > 0) {
                 _cards.forEach(pay => {
                     const bucket = getCreditCardBucketSnapshot(pay);
+                    _totalDue    += bucket.dueTotal || 0;
+                    _totalRecent += bucket.recentTotal || 0;
+                    _buckets.push({ pay, bucket });
+                });
+            }
+
+            // Build per-card rows
+            let _cardRows = '';
+            if (_ccEnabled && _buckets.length > 0) {
+                _buckets.forEach(({ pay, bucket }) => {
                     const due    = bucket.dueTotal || 0;
                     const recent = bucket.recentTotal || 0;
-                    const billingLabel = pay.billingDay ? `Billing day ${pay.billingDay}` : 'No billing day set';
+                    const billingLabel = pay.billingDay ? `Billing day ${pay.billingDay}` : 'No billing day';
                     _cardRows += `
-                    <div style="background:#0f172a;border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                            <span style="width:10px;height:10px;border-radius:50%;background:${pay.color};flex-shrink:0;"></span>
-                            <span style="font-size:0.8rem;font-weight:700;color:#f1f5f9;">${pay.name}</span>
-                            <span style="font-size:0.65rem;color:#64748b;margin-left:auto;">${billingLabel}</span>
-                        </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                            <div style="background:#1e293b;border-radius:8px;padding:10px;">
-                                <div style="font-size:0.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Due this cycle</div>
-                                <div style="font-size:1rem;font-weight:700;color:#f87171;">${_sym}${due.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                    <div style="background:#0f172a;border:1px solid rgba(99,102,241,0.18);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:stretch;gap:0;overflow:hidden;">
+                        <!-- left color bar -->
+                        <div style="width:3px;border-radius:3px;background:${pay.color};flex-shrink:0;margin-right:12px;"></div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+                                <span style="font-size:0.78rem;font-weight:700;color:#f1f5f9;">${pay.name}</span>
+                                <span style="font-size:0.6rem;color:#64748b;">${billingLabel}</span>
                             </div>
-                            <div style="background:#1e293b;border-radius:8px;padding:10px;">
-                                <div style="font-size:0.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Recent spend</div>
-                                <div style="font-size:1rem;font-weight:700;color:#fb923c;">${_sym}${recent.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+                                <div style="background:#1e293b;border-radius:8px;padding:9px 10px;">
+                                    <div style="font-size:0.55rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;">Due</div>
+                                    <div style="font-size:0.9rem;font-weight:700;color:#f87171;">${_sym}${due.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                                </div>
+                                <div style="background:#1e293b;border-radius:8px;padding:9px 10px;">
+                                    <div style="font-size:0.55rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;">Recent</div>
+                                    <div style="font-size:0.9rem;font-weight:700;color:#fb923c;">${_sym}${recent.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                                </div>
                             </div>
                         </div>
                     </div>`;
@@ -881,12 +920,26 @@ function openDrawerSection(sectionName) {
                     ${_ccEnabled ? `
                     <!-- Divider -->
                     <div style="height:1px;background:rgba(148,163,184,0.1);margin:14px 0 12px;"></div>
-                    <!-- Portfolio header -->
-                    <div style="font-size:0.6rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Your Cards</div>
+                    <!-- Portfolio total -->
+                    <div style="background:linear-gradient(135deg,rgba(79,70,229,0.15) 0%,rgba(99,102,241,0.08) 100%);border:1px solid rgba(99,102,241,0.25);border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+                        <div style="font-size:0.6rem;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Total — All Cards</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <div style="font-size:0.6rem;color:#94a3b8;margin-bottom:3px;">Due this cycle</div>
+                                <div style="font-size:1.25rem;font-weight:800;color:#f87171;">${_sym}${_totalDue.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.6rem;color:#94a3b8;margin-bottom:3px;">Recent spend</div>
+                                <div style="font-size:1.25rem;font-weight:800;color:#fb923c;">${_sym}${_totalRecent.toLocaleString('en-IN', {maximumFractionDigits:0})}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Per-card section header -->
+                    <div style="font-size:0.6rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Cards</div>
                     ${_cardRows}
                     <!-- Go to cards tab -->
                     <button onclick="closeDrawer(); switchScreen('cards');" style="
-                        width:100%;margin-top:6px;padding:10px;border-radius:10px;
+                        width:100%;margin-top:4px;padding:10px;border-radius:10px;
                         background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);
                         color:#a5b4fc;font-size:0.75rem;font-weight:600;cursor:pointer;">
                         Open Cards Tab →
