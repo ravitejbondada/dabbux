@@ -225,15 +225,15 @@
         </div>
 
         <div class="w-full space-y-4 max-w-sm">
-            <div class="relative flex justify-center items-center gap-4">
+            <div id="pinDots" class="relative flex justify-center items-center gap-4">
                 <span id="pinDot1"
-                    class="w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
+                    class="pin-dot w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
                 <span id="pinDot2"
-                    class="w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
+                    class="pin-dot w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
                 <span id="pinDot3"
-                    class="w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
+                    class="pin-dot w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
                 <span id="pinDot4"
-                    class="w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
+                    class="pin-dot w-4 h-4 rounded-full border-2 border-slate-800 bg-transparent transition-all duration-200"></span>
                 <button onclick="clearPin()"
                     class="absolute right-0 text-slate-800 transition-all focus:outline-none select-none">
                     <i data-lucide="x" class="w-3.5 h-3.5"></i>
@@ -407,6 +407,20 @@
                         </div>
                         <!-- Health emoji — no panel, floats freely -->
                         <span id="budgetHealthEmoji" class="text-8xl leading-none" title="Budget health">😄</span>
+                        <!-- Phase 5 — Dino character (shown in Dino Mode, hidden otherwise) -->
+                        <div id="budgetDinoWrap" class="budget-dino-container dino-idle" style="display:none">
+                            <svg id="budgetDinoSvg" viewBox="0 0 80 80" width="64" height="64">
+                                <ellipse cx="42" cy="50" rx="22" ry="18" fill="currentColor"/>
+                                <ellipse cx="55" cy="35" rx="14" ry="12" fill="currentColor"/>
+                                <path class="dino-mouth" d="M55,40 Q62,44 68,40" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
+                                <circle class="dino-eye" cx="60" cy="30" r="3" fill="#1a1a2e"/>
+                                <ellipse cx="30" cy="58" rx="8" ry="5" fill="currentColor" opacity="0.7"/>
+                                <ellipse cx="46" cy="64" rx="5" ry="8" fill="currentColor"/>
+                                <ellipse cx="54" cy="64" rx="5" ry="8" fill="currentColor"/>
+                                <ellipse cx="37" cy="44" rx="4" ry="3" fill="currentColor"/>
+                            </svg>
+                            <div id="budgetSpeechBubble" class="budget-speech-bubble" style="display:none"></div>
+                        </div>
                     </div>
 
                     <!-- Safe-to-spend sub-row -->
@@ -2353,28 +2367,28 @@
         class="fixed bottom-0 inset-x-0 h-16 bg-slate-950 border-t border-slate-900/90 flex justify-around items-center z-[80] text-slate-400 px-2 lg:px-24">
         <button onclick="switchScreen('dashboard')" id="navHome"
             class="flex-1 flex flex-col items-center justify-center h-full text-indigo-400 transition-colors">
-            <i data-lucide="home" class="w-5 h-5"></i>
+            <i data-lucide="home" data-nav-icon="dashboard" class="w-5 h-5"></i>
             <span class="text-[9px] font-bold mt-1">Home</span>
         </button>
         <button onclick="switchScreen('history')" id="navHistory"
             class="flex-1 flex flex-col items-center justify-center h-full transition-colors">
-            <i data-lucide="list-checks" class="w-5 h-5"></i>
+            <i data-lucide="list-checks" data-nav-icon="history" class="w-5 h-5"></i>
             <span class="text-[9px] font-bold mt-1">Ledger</span>
         </button>
         <button onclick="switchScreen('goals')" id="navGoals"
             class="flex-1 flex flex-col items-center justify-center h-full transition-colors">
-            <i data-lucide="map" class="w-5 h-5"></i>
+            <i data-lucide="map" data-nav-icon="goals" class="w-5 h-5"></i>
             <span class="text-[9px] font-bold mt-1">Trips & Goals</span>
         </button>
         <!-- Trip detail sub-view (hidden, not in nav) -->
         <button onclick="switchScreen('reports')" id="navReports"
             class="flex-1 flex flex-col items-center justify-center h-full transition-colors">
-            <i data-lucide="pie-chart" class="w-5 h-5"></i>
+            <i data-lucide="pie-chart" data-nav-icon="reports" class="w-5 h-5"></i>
             <span class="text-[9px] font-bold mt-1">Reports</span>
         </button>
         <button onclick="switchScreen('cards')" id="navSettings"
             class="flex-1 flex flex-col items-center justify-center h-full transition-colors">
-            <i data-lucide="credit-card" class="w-5 h-5"></i>
+            <i data-lucide="credit-card" data-nav-icon="cards" class="w-5 h-5"></i>
             <span class="text-[9px] font-bold mt-1">Cards</span>
         </button>
     </nav>
